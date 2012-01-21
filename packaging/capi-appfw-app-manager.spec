@@ -1,6 +1,6 @@
 Name:       capi-appfw-app-manager
 Summary:    Application Manager API
-Version:    0.0.1
+Version: 0.1.0
 Release:    1
 Group:      TO_BE/FILLED_IN
 License:    TO BE FILLED IN
