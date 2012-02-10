@@ -188,10 +188,13 @@ int app_manager_set_app_list_changed_cb(app_manager_app_list_changed_cb callback
 /**
  * @brief   Unregisters the callback function.
  *
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
  * @see app_manager_set_app_list_changed_cb()
  * @see app_manager_app_list_changed_cb()
  */
-void app_manager_unset_app_list_changed_cb(void);
+int app_manager_unset_app_list_changed_cb(void);
 
 /**
  * @}

@@ -339,14 +339,20 @@ int app_manager_set_app_list_changed_cb(app_manager_app_list_changed_cb callback
 	return APP_MANAGER_ERROR_NONE;
 }
 
-void app_manager_unset_app_list_changed_cb()
+int app_manager_unset_app_list_changed_cb()
 {	
 	if (app_list_changed_cb != NULL)
 	{
-		vconf_ignore_key_changed(MENU_PKG_VCONF_KEY, app_manager_meun_pkg_changed);
+		if (vconf_ignore_key_changed(MENU_PKG_VCONF_KEY, app_manager_meun_pkg_changed))
+		{
+			LOGE("[%s] DB_FAILED(0x%08x)", __FUNCTION__, APP_MANAGER_ERROR_DB_FAILED);
+			return APP_MANAGER_ERROR_DB_FAILED;
+		}
 	}
 
 	app_list_changed_cb = NULL;
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 static void app_manager_meun_pkg_changed(keynode_t* node, void *data)
