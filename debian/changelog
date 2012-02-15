@@ -1,3 +1,11 @@
+capi-appfw-app-manager (0.1.0-6) unstable; urgency=low
+
+  * Added version numbering
+  * Git: api/app-manager
+  * Tag: capi-appfw-app-manager_0.1.0-6
+
+ -- Kyuhun Jung <kyuhun.jung@samsung.com>  Wed, 15 Feb 2012 10:48:50 +0900
+
 capi-appfw-app-manager (0.1.0-5) unstable; urgency=low
 
   * Changed function signature : app_manager_unset_app_list_changed_cb()
