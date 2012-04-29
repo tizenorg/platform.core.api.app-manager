@@ -10,6 +10,7 @@ BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(ail)
+BuildRequires:  pkgconfig(pkgmgr)
 BuildRequires:  pkgconfig(capi-base-common)
 Requires(post): /sbin/ldconfig  
 Requires(postun): /sbin/ldconfig
@@ -31,10 +32,8 @@ The Application Manager API provides functions to get information about running 
 
 
 %build
-FULLVER=%{version}
-MAJORVER=`echo ${FULLVER} | cut -d '.' -f 1`
-cmake . -DCMAKE_INSTALL_PREFIX=/usr -DFULLVER=${FULLVER} -DMAJORVER=${MAJORVER}
-
+MAJORVER=`echo %{version} | awk 'BEGIN {FS="."}{print $1}'`
+cmake . -DCMAKE_INSTALL_PREFIX=/usr -DFULLVER=%{version} -DMAJORVER=${MAJORVER}
 
 make %{?jobs:-j%jobs}
 
@@ -48,10 +47,11 @@ rm -rf %{buildroot}
 
 
 %files
-%{_libdir}/libcapi-appfw-app-manager.so*
+%{_libdir}/libcapi-appfw-app-manager.so.*
 
 %files devel
 %{_includedir}/appfw/app_manager.h
+%{_libdir}/libcapi-appfw-app-manager.so
 %{_libdir}/pkgconfig/*.pc
 
 

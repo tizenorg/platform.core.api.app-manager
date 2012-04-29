@@ -10,10 +10,11 @@ SET(PREFIX ${CMAKE_INSTALL_PREFIX})
 SET(INC_DIR include)
 INCLUDE_DIRECTORIES(${INC_DIR})
 
-SET(dependents "dlog vconf aul ail capi-base-common")
+SET(requires "capi-base-common dlog vconf aul ail pkgmgr")
+SET(pc_requires "capi-base-common")
 
 INCLUDE(FindPkgConfig)
-pkg_check_modules(${fw_name} REQUIRED ${dependents})
+pkg_check_modules(${fw_name} REQUIRED ${requires})
 FOREACH(flag ${${fw_name}_CFLAGS})
     SET(EXTRA_CFLAGS "${EXTRA_CFLAGS} ${flag}")
 ENDFOREACH(flag)
@@ -51,7 +52,7 @@ INSTALL(
         )
 
 SET(PC_NAME ${fw_name})
-SET(PC_REQUIRED ${dependents})
+SET(PC_REQUIRED ${pc_requires})
 SET(PC_LDFLAGS -l${fw_name})
 SET(PC_CFLAGS -I\${includedir}/appfw)
 

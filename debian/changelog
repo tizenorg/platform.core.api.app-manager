@@ -1,3 +1,13 @@
+capi-appfw-app-manager (0.1.0-9) unstable; urgency=low
+
+  * Updated build configuration
+  * App-list APIs are re-implemented by package-manager lib
+  * Updated for AIL API changes
+  * Git: api/app-manager
+  * Tag: capi-appfw-app-manager_0.1.0-9
+
+ -- Junghyuk Park <junghyuk.park@samsung.com>  Thu, 15 Mar 2012 11:37:29 +0900
+
 capi-appfw-app-manager (0.1.0-6) unstable; urgency=low
 
   * Added version numbering

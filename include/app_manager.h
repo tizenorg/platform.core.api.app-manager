@@ -179,6 +179,7 @@ int app_manager_get_app_version(const char *package, char **version);
  * @return  0 on success, otherwise a negative error value.
  * @retval  #APP_MANAGER_ERROR_NONE On Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
  * @post	It will invoke app_manager_app_list_changed_cb() when the list of installed application changes.
  * @see app_manager_unset_app_list_changed_cb()
  * @see app_manager_app_list_changed_cb()
@@ -190,7 +191,6 @@ int app_manager_set_app_list_changed_cb(app_manager_app_list_changed_cb callback
  *
  * @return 0 on success, otherwise a negative error value.
  * @retval #APP_MANAGER_ERROR_NONE Successful
- * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
  * @see app_manager_set_app_list_changed_cb()
  * @see app_manager_app_list_changed_cb()
  */

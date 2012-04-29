@@ -24,6 +24,7 @@
 #include <aul_service.h>
 #include <vconf.h>
 #include <ail.h>
+#include <package-manager.h>
 #include <dlog.h>
 
 #include <app_manager_private.h>
@@ -35,16 +36,10 @@
 
 #define LOG_TAG "TIZEN_N_APP_MANAGER"
 
-#define MENU_PKG_VCONF_KEY "memory/menuscreen/desktop"
-
-#define EVENT_CREATE "create"
-#define EVENT_UPDATE "update"
-#define EVENT_DELETE "delete"
-
 typedef struct {
 	app_manager_app_running_cb cb;
 	void *user_data;
-	bool *foreach_break;
+	bool foreach_break;
 } running_apps_foreach_cb_context;
 
 typedef struct {
@@ -52,9 +47,9 @@ typedef struct {
 	void *user_data;
 } installed_apps_foreach_cb_context;
 
+static pkgmgr_client *package_manager = NULL;
 static app_manager_app_list_changed_cb app_list_changed_cb = NULL;
-
-static void app_manager_meun_pkg_changed(keynode_t* node, void *data);
+static void *app_list_changed_cb_data = NULL;
 
 static int foreach_running_app_cb_broker(const aul_app_info * appcore_app_info, void *appcore_user_data)
 {
@@ -88,11 +83,11 @@ static int foreach_running_app_cb_broker(const aul_app_info * appcore_app_info, 
 
 	foreach_cb_context = (running_apps_foreach_cb_context *)appcore_user_data;
 
-	if (foreach_cb_context->cb != NULL && *(foreach_cb_context->foreach_break) == false)
+	if (foreach_cb_context->cb != NULL && foreach_cb_context->foreach_break == false)
 	{
 		if (foreach_cb_context->cb(appcore_app_info->pkg_name, foreach_cb_context->user_data) == false)
 		{
-			*(foreach_cb_context->foreach_break) = true;
+			foreach_cb_context->foreach_break = true;
 		}
 	}
 
@@ -170,12 +165,10 @@ static int app_manager_ail_error_handler(ail_error_e ail_error, const char *func
 
 int app_manager_foreach_app_running(app_manager_app_running_cb callback, void *user_data)
 {
-	bool foreach_break = false;
-
 	running_apps_foreach_cb_context foreach_cb_context = {
 		.cb = callback,
 		.user_data = user_data,
-		.foreach_break = &foreach_break
+		.foreach_break = false
 	};
 
 	if (callback == NULL)
@@ -253,7 +246,7 @@ int app_manager_is_running(const char *package, bool *is_running)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-static int app_manager_get_appinfo(const char *package, ail_prop_str_e property, char **value)
+static int app_manager_get_appinfo(const char *package, const char *property, char **value)
 {
 	ail_error_e ail_error;
 	ail_appinfo_h appinfo;
@@ -321,83 +314,88 @@ int app_manager_get_app_version(const char *package, char** version)
 	return app_manager_get_appinfo(package, AIL_PROP_VERSION_STR, version);
 }
 
+static app_manger_event_type_e app_manager_app_list_pkgmgr_event(const char *value)
+{
+	if (!strcasecmp(value, "install"))
+	{
+		return APP_MANAGER_EVENT_INSTALLED;
+	}
+	else if (!strcasecmp(value, "uninstall"))
+	{
+		return APP_MANAGER_EVENT_UNINSTALLED;	
+	}
+	else if (!strcasecmp(value, "update"))
+{
+		return APP_MANAGER_EVENT_UPDATED;		
+	}
+	else
+	{
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+	}
+}
+
+static int app_manager_app_list_changed_cb_broker(int id, const char *type, const char *package, const char *key, const char *val, const void *msg, void *data)
+	{
+	static int event_id = -1;
+	static app_manger_event_type_e event_type;
+
+	if (!strcasecmp(key, "start"))
+	{
+		event_id = id;
+		event_type = app_manager_app_list_pkgmgr_event(val);
+}
+	else if (!strcasecmp(key, "end") && !strcasecmp(val, "ok") && id == event_id)
+	{
+		if (app_list_changed_cb != NULL && event_type >= 0)
+		{
+			app_list_changed_cb(event_type, package, app_list_changed_cb_data);
+		}
+
+		event_id = -1;
+		event_type = -1;
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
 int app_manager_set_app_list_changed_cb(app_manager_app_list_changed_cb callback, void* user_data)
 {
        if (callback == NULL) 
-	{
-		LOGE("[%s] INVALID_PARAMETER(0x%08x) : invalid callback", __FUNCTION__, APP_MANAGER_ERROR_INVALID_PARAMETER);
+{
+		LOGE("[%s] INVALID_PARAMETER(0x%08x)", __FUNCTION__, APP_MANAGER_ERROR_INVALID_PARAMETER);
 		return APP_MANAGER_ERROR_INVALID_PARAMETER;
 	}
 
 	if (app_list_changed_cb == NULL)
 	{
-		vconf_notify_key_changed(MENU_PKG_VCONF_KEY, app_manager_meun_pkg_changed, user_data);
+		package_manager = pkgmgr_client_new(PC_LISTENING);
+
+		if (package_manager == NULL)
+	{
+			LOGE("[%s] OUT_OF_MEMORY(0x%08x)", __FUNCTION__, APP_MANAGER_ERROR_OUT_OF_MEMORY);
+			return APP_MANAGER_ERROR_OUT_OF_MEMORY;
+	}
+	
+		pkgmgr_client_listen_status(package_manager, app_manager_app_list_changed_cb_broker, NULL);
 	}
 
 	app_list_changed_cb = callback;
+	app_list_changed_cb_data = user_data;
 
 	return APP_MANAGER_ERROR_NONE;
-}
+	}
 
 int app_manager_unset_app_list_changed_cb()
-{	
+	{
 	if (app_list_changed_cb != NULL)
 	{
-		if (vconf_ignore_key_changed(MENU_PKG_VCONF_KEY, app_manager_meun_pkg_changed))
-		{
-			LOGE("[%s] DB_FAILED(0x%08x)", __FUNCTION__, APP_MANAGER_ERROR_DB_FAILED);
-			return APP_MANAGER_ERROR_DB_FAILED;
-		}
+		pkgmgr_client_free(package_manager);
+		package_manager = NULL;
 	}
 
 	app_list_changed_cb = NULL;
+	app_list_changed_cb_data = NULL;
 
 	return APP_MANAGER_ERROR_NONE;
-}
-
-static void app_manager_meun_pkg_changed(keynode_t* node, void *data)
-{
-	char *pkg_event;
-	char type[10];
-	char package[1024];
-
-	pkg_event = vconf_get_str(vconf_keynode_get_name(node));
-	if(!pkg_event) {
-		LOGE("[%s] failed to get the package event");
-		return;
-	}
-
-	if (sscanf(pkg_event, "%10[^:]:%1023s", type, package) != 2)
-	{
-		LOGE("[%s] failed to parse the package event format : [%s], [%s]", __FUNCTION__, type, package);
-	}
-
-
-	if(app_list_changed_cb == NULL)
-	{
-		return;
-	}
-	
-	if(!strcasecmp(type, EVENT_CREATE))
-	{
-		// A new application has been installed.
-		app_list_changed_cb(APP_MANAGER_EVENT_INSTALLED, package, data);
-	}
-	else if( !strcasecmp(type, EVENT_UPDATE))
-	{
-		// An existing application has been updated.
-		app_list_changed_cb(APP_MANAGER_EVENT_UPDATED , package, data);
-	}
-
-	else if( !strcasecmp(type, EVENT_DELETE))
-	{
-		// An existing application has been uninstalled.
-		app_list_changed_cb(APP_MANAGER_EVENT_UNINSTALLED  , package, data);
-	}
-	else
-	{
-		LOGE("[%s] invalid event : type(%s)", __FUNCTION__, type);
-	}
-
 }
 
