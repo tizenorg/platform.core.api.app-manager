@@ -5,6 +5,7 @@ Release:    1
 Group:      TO_BE/FILLED_IN
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
+Source1001: packaging/capi-appfw-app-manager.manifest 
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(vconf)
@@ -32,6 +33,7 @@ The Application Manager API provides functions to get information about running 
 
 
 %build
+cp %{SOURCE1001} .
 MAJORVER=`echo %{version} | awk 'BEGIN {FS="."}{print $1}'`
 cmake . -DCMAKE_INSTALL_PREFIX=/usr -DFULLVER=%{version} -DMAJORVER=${MAJORVER}
 
@@ -47,9 +49,11 @@ rm -rf %{buildroot}
 
 
 %files
+%manifest capi-appfw-app-manager.manifest
 %{_libdir}/libcapi-appfw-app-manager.so.*
 
 %files devel
+%manifest capi-appfw-app-manager.manifest
 %{_includedir}/appfw/app_manager.h
 %{_libdir}/libcapi-appfw-app-manager.so
 %{_libdir}/pkgconfig/*.pc
