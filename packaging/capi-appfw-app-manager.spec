@@ -1,9 +1,10 @@
+#sbs-git:slp/api/app-manager capi-appfw-app-manager 0.1.0 76739af2bfbeb46dc9db0cb3e044f880ddcb9440
 Name:       capi-appfw-app-manager
 Summary:    Application Manager API
-Version:    0.1.0
-Release:    1
+Version: 0.1.0
+Release:    11
 Group:      TO_BE/FILLED_IN
-License:    Apache-2.0
+License:    TO BE FILLED IN
 Source0:    %{name}-%{version}.tar.gz
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
@@ -12,6 +13,7 @@ BuildRequires:  pkgconfig(aul)
 BuildRequires:  pkgconfig(ail)
 BuildRequires:  pkgconfig(pkgmgr)
 BuildRequires:  pkgconfig(capi-base-common)
+BuildRequires:  pkgconfig(glib-2.0)
 Requires(post): /sbin/ldconfig  
 Requires(postun): /sbin/ldconfig
 
@@ -50,7 +52,7 @@ rm -rf %{buildroot}
 %{_libdir}/libcapi-appfw-app-manager.so.*
 
 %files devel
-%{_includedir}/appfw/app_manager.h
+%{_includedir}/appfw/*.h
 %{_libdir}/libcapi-appfw-app-manager.so
 %{_libdir}/pkgconfig/*.pc
 

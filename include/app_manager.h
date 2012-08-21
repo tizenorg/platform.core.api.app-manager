@@ -20,6 +20,11 @@
 
 #include <tizen.h>
 
+#include <app_context.h>
+#include <app_info.h>
+
+#include <app_manager_deprecated.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,6 +34,7 @@ extern "C" {
  * @{
  */
 
+
 /**
  * @brief Enumerations of error code for Application Manager.
  */
@@ -37,171 +43,244 @@ typedef enum
 	APP_MANAGER_ERROR_NONE = TIZEN_ERROR_NONE,	/**< Successful */
 	APP_MANAGER_ERROR_INVALID_PARAMETER = TIZEN_ERROR_INVALID_PARAMETER, /**< Invalid parameter */
 	APP_MANAGER_ERROR_OUT_OF_MEMORY = TIZEN_ERROR_OUT_OF_MEMORY, /**< Out of memory */
-	APP_MANAGER_ERROR_DB_FAILED = TIZEN_ERROR_APPLICATION_CLASS | 0x03,	/**< Database error  */
-	APP_MANAGER_ERROR_INVALID_PACKAGE = TIZEN_ERROR_APPLICATION_CLASS | 0x04, /**< Can not find the package */
+	APP_MANAGER_ERROR_IO_ERROR = TIZEN_ERROR_IO_ERROR, /**< Internal I/O error */
+	APP_MANAGER_ERROR_NO_SUCH_APP = TIZEN_ERROR_APPLICATION_CLASS | 0x01, /**< No such application */
+
+	APP_MANAGER_ERROR_DB_FAILED = TIZEN_ERROR_APPLICATION_CLASS | 0x03, /**< Database error  */
+	APP_MANAGER_ERROR_INVALID_PACKAGE = TIZEN_ERROR_APPLICATION_CLASS | 0x04, /**< Invalid package name */
 } app_manager_error_e;
 
-/**
- * @brief Enumerations of event type for the list of the installed applications.
- */
-typedef enum
-{
-	APP_MANAGER_EVENT_INSTALLED = 40,   	/**< Install event */
-	APP_MANAGER_EVENT_UNINSTALLED = 41,      	/**< Uninstall event */
-	APP_MANAGER_EVENT_UPDATED = 42,   	/**< Update event */
-} app_manger_event_type_e;
 
 /**
- * @brief Called to get the package name once for each running application.
- * @param[in] package The package name of each running application
+ * @brief Called when an application gets launched or termiated.
+ * @param[in] app_context The application context of the application launched or termiated
+ * @param[in] event The application context event
+ * @param[in] user_data The user data passed from the foreach function
+ * @pre This function is called when an application gets launched or terminated after you register this callback using app_manager_set_app_context_event_cb()
+ * @see app_manager_set_app_context_event_cb()
+ * @see app_manager_unset_app_context_event_cb()
+ */
+typedef void (*app_manager_app_context_event_cb) (app_context_h app_context, app_context_event_e event, void *user_data);
+
+
+/**
+ * @brief Called to get the application context once for each running application.
+ * @param[in] app_context The application context of each running application
  * @param[in] user_data The user data passed from the foreach function
  * @return @c true to continue with the next iteration of the loop, \n @c false to break out of the loop.
- * @pre	app_manager_foreach_app_running() will invoke this callback.
- * @see app_manager_foreach_app_running()
+ * @pre app_manager_foreach_app_context() will invoke this callback.
+ * @see app_manager_foreach_app_context()
  */
-typedef bool (*app_manager_app_running_cb) (const char *package, void *user_data);
+typedef bool (*app_manager_app_context_cb) (app_context_h app_context, void *user_data);
+
 
 /**
- * @brief Called to get the package name once for each installed application.
- *
- * @param[in] package The package name of each installed application
+ * @internal
+ * @brief Called when an application gets installed, terminated or updated.
+ * @param[in] app_info The application information of the application installed, terminated or updated
+ * @param[in] event The application information event
+ * @param[in] user_data The user data passed from the foreach function
+ * @pre This function is called when an application gets installed, uninstalled or updated after you register this callback using app_manager_set_app_info_event_cb()
+ * @see app_manager_set_app_info_event_cb()
+ * @see app_manager_unset_app_info_event_cb()
+ */
+typedef void (*app_manager_app_info_event_cb) (app_info_h app_info, app_info_event_e event, void *user_data);
+
+
+/**
+ * @internal
+ * @brief Called to get the application information once for each installed application.
+ * @param[in] app_info The application information of each installed application
  * @param[in] user_data The user data passed from the foreach function
  * @return @c true to continue with the next iteration of the loop, \n @c false to break out of the loop.
- * @pre	app_manager_foreach_app_installed() will invoke this callback.
- * @see app_manager_foreach_app_installed()
+ * @pre app_manager_foreach_app_info() will invoke this callback.
+ * @see app_manager_foreach_app_info()
  */
-typedef bool (*app_manager_app_installed_cb) (const char *package, void *user_data);
+typedef bool (*app_manager_app_info_cb) (app_info_h app_info, void *user_data);
+
 
 /**
- * @brief  Called when the list of the installed applications changes.
- *
- * @param[in] event_type The type of applist modification event
- * @param[in] package The package name of application installed or uninstalled
- * @param[in] user_data The user data passed from the callback registration function
- * @pre	An application registers this callback using app_manager_set_app_list_changed_cb() 
- *	to detect change of list of the installed applications.
- * @see app_manager_set_app_list_changed_cb()
- * @see app_manager_unset_app_list_changed_cb()
- */
-typedef void(*app_manager_app_list_changed_cb) (app_manger_event_type_e event_type, const char *package, void *user_data);
-
-/**
- * @brief Retrieves the package names of all running applications 
- * by invoking the callback once for each running application to get their package names.
- *
- * @param [in] callback The callback function to invoke
- * @param [in] user_data The user data to be passed to the callback function
- * @return 0 on success, otherwise a negative error value.
- * @retval #APP_MANAGER_ERROR_NONE Successful
- * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
- * @post	This function invokes app_manager_app_running_cb() repeatedly for each running application.
- * @see	app_manager_app_running_cb()
- */
-int app_manager_foreach_app_running(app_manager_app_running_cb callback, void *user_data);
-
-/**
- * @brief Retrieves the package names of all installed applications 
- * by invoking the callback once for each installed application to get their package names.
- *
- * @param [in] callback The callback function to invoke
- * @param [in] user_data The user data to be passed to the callback function
- * @return 0 on success, otherwise a negative error value.
- * @retval #APP_MANAGER_ERROR_NONE Successful
- * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
- * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
- * @post	This function invokes app_manager_app_installed_cb() repeatedly for each installed application.
- * @see	app_manager_app_installed_cb()
- */
-int app_manager_foreach_app_installed(app_manager_app_installed_cb callback, void *user_data);
-
-/**
- * @brief Checks whether the application with the given package name is running.
- *
- *
- * @param [in] package The package name of the application
- * @param [out] is_running @c true if the application is running, \n @c false if not running.
- * @return 0 on success, otherwise a negative error value.
- * @retval #APP_MANAGER_ERROR_NONE Successful
- * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
- */
-int app_manager_is_running(const char *package, bool *is_running);
-
-/**
- * @brief Gets the application name with the given package name.
- *
- * @remarks @a name must be released with free() by you.
- * @param [in] package	The package name of the application
- * @param [out] name	The application name
- * @return 0 on success, otherwise a negative error value.
- * @retval #APP_MANAGER_ERROR_NONE Successful
- * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
- * @retval #APP_MANAGER_ERROR_INVALID_PACKAGE Package name is invalid, Can not find the package
- * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
- * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
- */
-int app_manager_get_app_name(const char *package, char **name);
-
-/**
- * @brief Gets the application icon path with the given package name.
- *
- * @remarks @a icon_path must be released with free() by you.
- * @param [in] package	The package name of the application
- * @param [out] icon_path The icon path to represent the application
- * @return 0 on success, otherwise a negative error value.
- * @retval #APP_MANAGER_ERROR_NONE Successful
- * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
- * @retval #APP_MANAGER_ERROR_INVALID_PACKAGE Package name is invalid, Can not find the package
- * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
- * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
- */
-int app_manager_get_app_icon_path(const char *package, char **icon_path);
-
-/**
- * @brief Gets the application version with the given package name.
- *
- * @remarks @a version must be released with free() by you.
- * @param [in] package	The package name of the application
- * @param [out] version The version of the application
- * @return 0 on success, otherwise a negative error value.
- * @retval #APP_MANAGER_ERROR_NONE Successful
- * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
- * @retval #APP_MANAGER_ERROR_INVALID_PACKAGE Package name is invalid, Can not find the package
- * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
- * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
- */
-int app_manager_get_app_version(const char *package, char **version);
-
-/**
- * @brief   Registers a callback function to be invoked when the list of the installed applications changes.
- *
+ * @brief Registers a callback function to be invoked when the applications gets launched or termiated.
  * @param[in] callback The callback function to register
  * @param[in] user_data The user data to be passed to the callback function
  * @return  0 on success, otherwise a negative error value.
- * @retval  #APP_MANAGER_ERROR_NONE On Successful
- * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #APP_MANAGER_ERROR_NONE On Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
  * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
- * @post	It will invoke app_manager_app_list_changed_cb() when the list of installed application changes.
- * @see app_manager_unset_app_list_changed_cb()
- * @see app_manager_app_list_changed_cb()
+ * @post	It will invoke app_manager_app_context_event_cb() when the application is launched or termiated.
+ * @see app_manager_unset_app_context_event_cb()
+ * @see app_manager_app_context_event_cb()
  */
-int app_manager_set_app_list_changed_cb(app_manager_app_list_changed_cb callback, void *user_data);
+int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data);
+
 
 /**
- * @brief   Unregisters the callback function.
- *
+ * @brief Unregisters the callback function.
  * @return 0 on success, otherwise a negative error value.
  * @retval #APP_MANAGER_ERROR_NONE Successful
- * @see app_manager_set_app_list_changed_cb()
- * @see app_manager_app_list_changed_cb()
+ * @see app_manager_set_app_event_cb()
+ * @see app_manager_app_context_event_cb()
  */
-int app_manager_unset_app_list_changed_cb(void);
+void app_manager_unset_app_context_event_cb(void);
+
+
+/**
+ * @brief Retrieves all application contexts of running applications
+ * @param [in] callback The callback function to invoke
+ * @param [in] user_data The user data to be passed to the callback function
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @post	This function invokes app_manager_app_context_cb() repeatedly for each application context.
+ * @see app_manager_app_context_cb()
+ */
+int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *user_data);
+
+
+/**
+ * @brief Gets the application context for the given ID of the application
+ * @remarks This function returns #APP_MANAGER_ERROR_NO_SUCH_APP if the application with the given application ID is not running \n
+ * @a app_context must be released with app_context_destroy() by you.
+ * @param [in] app_id The ID of the application
+ * @param [out] app_context The application context of the given application ID
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
+ * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
+ * @retval #APP_MANAGER_ERROR_NO_SUCH_APP No such application
+ */
+int app_manager_get_app_context(const char *app_id, app_context_h *app_context);
+
+
+/**
+ * @brief Gets the name of the application package for the given process ID of the application
+ * @remark This function is @b deprecated. Use app_manager_get_app_id() instead.
+ * @remarks This function returns #APP_MANAGER_ERROR_NO_SUCH_APP if the application with the given process ID is not valid \n
+ * @a package must be released with free() by you.
+ * @param [in] pid The process ID of the given application
+ * @param [out] package The package name of the application
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
+ * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
+ * @retval #APP_MANAGER_ERROR_NO_SUCH_APP No such application
+ */
+int app_manager_get_package(pid_t pid, char **package);
+
+
+/**
+ * @brief Gets the ID of the application for the given process ID
+ * @remarks This function returns #APP_MANAGER_ERROR_NO_SUCH_APP if the application with the given process ID is not valid \n
+ * @a app_id must be released with free() by you.
+ * @param [in] pid The process ID of the application
+ * @param [out] app_id The ID of the application
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
+ * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
+ * @retval #APP_MANAGER_ERROR_NO_SUCH_APP No such application
+ */
+int app_manager_get_app_id(pid_t pid, char **app_id);
+
+
+/**
+ * @brief Checks whether the application with the given package name is running.
+ * @param [in] app_id The ID of the application
+ * @param [out] running @c true if the application is running, \n @c false if not running.
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ */
+int app_manager_is_running(const char *app_id, bool *running);
+
+
+/**
+ * @brief Resume the application
+ * @param [in] app_context The application context
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ */
+int app_manager_resume_app(app_context_h app_context);
+
+
+/**
+ * @brief Terminate the application
+ * @param [in] app_context The application context
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ */
+int app_manager_terminate_app(app_context_h app_context);
+
+
+/**
+ * @internal
+ * @brief Registers a callback function to be invoked when the applications gets installed, uninstalled or updated.
+ * @param[in] callback The callback function to register
+ * @param[in] user_data The user data to be passed to the callback function
+ * @return  0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE On Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
+ * @post	It will invoke app_manager_app_info_event_cb() when the application gets installed, uninstalled or updated.
+ * @see app_manager_unset_app_info_event_cb()
+ * @see app_manager_app_info_event_cb()
+ */
+int app_manager_set_app_info_event_cb(app_manager_app_info_event_cb callback, void *user_data);
+
+
+/**
+ * @internal
+ * @brief Unregisters the callback function.
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @see app_manager_set_app_info_event_cb()
+ * @see app_manager_app_info_event_cb()
+ */
+void app_manager_unset_app_info_event_cb(void);
+
+
+/**
+ * @internal
+ * @brief Retrieves all application information of installed applications
+ * @param [in] callback The callback function to invoke
+ * @param [in] user_data The user data to be passed to the callback function
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @post	This function invokes app_manager_app_info_cb() repeatedly for each application information.
+ * @see app_manager_app_info_cb()
+ */
+int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_data);
+
+
+/**
+ * @internal
+ * @brief Gets the application information for the given application ID
+ * @remarks @a app_info must be released with app_info_destroy() by you.
+ * @param [in] app_id The ID of the application
+ * @param [out] app_info The application information for the given application ID
+ * @return 0 on success, otherwise a negative error value.
+ * @retval #APP_MANAGER_ERROR_NONE Successful
+ * @retval #APP_MANAGER_ERROR_INVALID_PARAMETER Invalid parameter
+ * @retval #APP_MANAGER_ERROR_DB_FAILED Database error occurred
+ * @retval #APP_MANAGER_ERROR_OUT_OF_MEMORY Out of memory
+ */
+int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
+
 
 /**
  * @}
  */
+
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __TIZEN_APPFW_APP_MANAGER_H */
+
