@@ -1,10 +1,9 @@
-#sbs-git:slp/api/app-manager capi-appfw-app-manager 0.1.0 76739af2bfbeb46dc9db0cb3e044f880ddcb9440
 Name:       capi-appfw-app-manager
 Summary:    Application Manager API
-Version: 0.1.0
+Version:    0.1.0
 Release:    20
-Group:      TO_BE/FILLED_IN
-License:    TO BE FILLED IN
+Group:      API/C API
+License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
@@ -15,15 +14,13 @@ BuildRequires:  pkgconfig(pkgmgr)
 BuildRequires:  pkgconfig(pkgmgr-info)
 BuildRequires:  pkgconfig(capi-base-common)
 BuildRequires:  pkgconfig(glib-2.0)
-Requires(post): /sbin/ldconfig  
-Requires(postun): /sbin/ldconfig
 
 %description
 The Application Manager API provides functions to get information about running applications.
 
 %package devel
 Summary:  Application Manager API (Development)
-Group:    TO_BE/FILLED_IN
+Group:    Development/API
 Requires: %{name} = %{version}-%{release}
 
 %description devel
@@ -36,7 +33,7 @@ The Application Manager API provides functions to get information about running 
 
 %build
 MAJORVER=`echo %{version} | awk 'BEGIN {FS="."}{print $1}'`
-cmake . -DCMAKE_INSTALL_PREFIX=/usr -DFULLVER=%{version} -DMAJORVER=${MAJORVER}
+%cmake . -DFULLVER=%{version} -DMAJORVER=${MAJORVER}
 
 make %{?jobs:-j%jobs}
 
