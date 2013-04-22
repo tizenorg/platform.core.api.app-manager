@@ -35,9 +35,7 @@
 
 #define LOG_TAG "TIZEN_N_APP_MANAGER"
 
-
 static int app_info_create(const char *app_id, app_info_h *app_info);
-
 
 struct app_info_s {
 	char *app_id;
@@ -49,6 +47,10 @@ typedef struct _foreach_context_{
 	void *user_data;
 } foreach_context_s;
 
+static char *am_appid;
+static pkgmgr_client *package_event_listener = NULL;
+static app_manager_app_info_event_cb app_info_event_cb = NULL;
+static void *app_info_event_cb_data = NULL;
 
 static ail_cb_ret_e app_info_foreach_app_info_cb(const ail_appinfo_h ail_app_info, void *cb_data)
 {
@@ -103,25 +105,61 @@ int app_info_get_app_info(const char *app_id, app_info_h *app_info)
 	return app_info_create(app_id, app_info);
 }
 
-static int app_info_create(const char *app_id, app_info_h *app_info)
+static int app_info_func(const pkgmgrinfo_appinfo_h handle, void *user_data)
 {
-	pkgmgrinfo_appinfo_h pkg_app_info;
-	app_info_h info;
-	if (app_id == NULL || app_info == NULL)
-	{
+	int retval = 0;
+
+	retval = pkgmgr_appinfo_get_appid(handle, &am_appid);
+	if (retval < 0) {
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
-	if (pkgmgrinfo_appinfo_get_appinfo(app_id, &pkg_app_info)) {
-		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+static int app_info_create(const char *app_id, app_info_h *app_info)
+{
+	pkgmgrinfo_pkginfo_h pkginfo = NULL;
+	pkgmgrinfo_appinfo_h appinfo = NULL;
+	app_info_h info = NULL;
+	int retval = 0;
+
+	if (app_id == NULL || app_info == NULL) {
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
 	info = calloc(1, sizeof(struct app_info_s));
 	if (info == NULL) {
-		pkgmgrinfo_appinfo_destroy_appinfo(pkg_app_info);
 		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
 	}
-	info->app_id = strdup(app_id);
-	info->pkg_app_info = pkg_app_info;
+
+	retval = pkgmgrinfo_pkginfo_get_pkginfo(app_id, &pkginfo);
+	if (retval < 0) {
+		if (pkgmgrinfo_appinfo_get_appinfo(app_id, &appinfo)) {
+			return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+		}
+
+		info->app_id = strdup(app_id);
+		info->pkg_app_info = appinfo;
+		*app_info = info;
+		return APP_MANAGER_ERROR_NONE;
+	}
+
+	retval = pkgmgrinfo_appinfo_get_list(pkginfo, PM_UI_APP, app_info_func, NULL);
+
+	if (retval < 0) {
+		app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+	}
+
+	if (pkgmgrinfo_appinfo_get_appinfo(am_appid, &appinfo)) {
+		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+	}
+
+	info->app_id = strdup(am_appid);
+	info->pkg_app_info = appinfo;
 	*app_info = info;
+
+	pkgmgrinfo_pkginfo_destroy_pkginfo(pkginfo);
+
 	return APP_MANAGER_ERROR_NONE;
 }
 
@@ -304,11 +342,6 @@ int app_info_get_type(app_info_h app_info, char **type)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-
-static pkgmgr_client *package_event_listener = NULL;
-static app_manager_app_info_event_cb app_info_event_cb = NULL;
-static void *app_info_event_cb_data = NULL;
-
 static app_info_event_e app_info_get_app_info_event(const char *value)
 {
 	if (!strcasecmp(value, "install"))
@@ -332,28 +365,36 @@ static app_info_event_e app_info_get_app_info_event(const char *value)
 static int app_info_package_event_listener_cb(
 	int id, const char *type, const char *package, const char *key, const char *val, const void *msg, void *data)
 {
-	static int event_id = -1;
 	static app_info_event_e event_type = -1;
+	app_info_h app_info;
 
 	if (!strcasecmp(key, "start"))
 	{
-		event_id = id;
 		event_type = app_info_get_app_info_event(val);
-	}
-	else if (!strcasecmp(key, "end") && !strcasecmp(val, "ok") && id == event_id)
-	{
-		if (app_info_event_cb != NULL && event_type >= 0)
+		if (event_type >= APP_INFO_EVENT_UNINSTALLED)
 		{
-			app_info_h app_info;
-			
 			if (app_info_create(package, &app_info) == APP_MANAGER_ERROR_NONE)
 			{
-				app_info_event_cb(app_info, event_type, app_info_event_cb_data);
+				if(app_info_event_cb)
+					app_info_event_cb(app_info, event_type, app_info_event_cb_data);
+
 				app_info_destroy(app_info);
 			}
 		}
+	}
+	else if (!strcasecmp(key, "end") && !strcasecmp(val, "ok"))
+	{
+		event_type = app_info_get_app_info_event(val);
+		if (event_type == APP_INFO_EVENT_INSTALLED)
+		{
+			if (app_info_create(package, &app_info) == APP_MANAGER_ERROR_NONE)
+			{
+				if(app_info_event_cb)
+					app_info_event_cb(app_info, event_type, app_info_event_cb_data);
 
-		event_id = -1;
+				app_info_destroy(app_info);
+			}
+		}
 		event_type = -1;
 	}
 
@@ -370,17 +411,17 @@ int app_info_set_event_cb(app_manager_app_info_event_cb callback, void *user_dat
 	if (app_info_event_cb == NULL)
 	{
 		package_event_listener = pkgmgr_client_new(PC_LISTENING);
-		
+
 		if (package_event_listener == NULL)
 		{
 			return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
 		}
-
-		pkgmgr_client_listen_status(package_event_listener, app_info_package_event_listener_cb, NULL);
 	}
 
 	app_info_event_cb = callback;
 	app_info_event_cb_data = user_data;
+
+	pkgmgr_client_listen_status(package_event_listener, app_info_package_event_listener_cb, NULL);
 
 	return APP_MANAGER_ERROR_NONE;
 }

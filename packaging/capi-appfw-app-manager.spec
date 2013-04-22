@@ -1,7 +1,7 @@
 Name:       capi-appfw-app-manager
 Summary:    Application Manager API
 Version:    0.1.0
-Release:    20
+Release:    21
 Group:      API/C API
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
