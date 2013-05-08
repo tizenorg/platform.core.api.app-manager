@@ -47,7 +47,6 @@ typedef struct _foreach_context_{
 	void *user_data;
 } foreach_context_s;
 
-static char *am_appid;
 static pkgmgr_client *package_event_listener = NULL;
 static app_manager_app_info_event_cb app_info_event_cb = NULL;
 static void *app_info_event_cb_data = NULL;
@@ -105,24 +104,13 @@ int app_info_get_app_info(const char *app_id, app_info_h *app_info)
 	return app_info_create(app_id, app_info);
 }
 
-static int app_info_func(const pkgmgrinfo_appinfo_h handle, void *user_data)
-{
-	int retval = 0;
-
-	retval = pkgmgr_appinfo_get_appid(handle, &am_appid);
-	if (retval < 0) {
-		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
-	}
-
-	return APP_MANAGER_ERROR_NONE;
-}
-
 static int app_info_create(const char *app_id, app_info_h *app_info)
 {
 	pkgmgrinfo_pkginfo_h pkginfo = NULL;
 	pkgmgrinfo_appinfo_h appinfo = NULL;
 	app_info_h info = NULL;
 	int retval = 0;
+	char *main_appid = NULL;
 
 	if (app_id == NULL || app_info == NULL) {
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
@@ -135,6 +123,7 @@ static int app_info_create(const char *app_id, app_info_h *app_info)
 	retval = pkgmgrinfo_pkginfo_get_pkginfo(app_id, &pkginfo);
 	if (retval < 0) {
 		if (pkgmgrinfo_appinfo_get_appinfo(app_id, &appinfo)) {
+			free(info);
 			return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
 		}
 
@@ -144,17 +133,16 @@ static int app_info_create(const char *app_id, app_info_h *app_info)
 		return APP_MANAGER_ERROR_NONE;
 	}
 
-	retval = pkgmgrinfo_appinfo_get_list(pkginfo, PM_UI_APP, app_info_func, NULL);
-
+	retval = pkgmgrinfo_pkginfo_get_mainappid(pkginfo, &main_appid);
 	if (retval < 0) {
 		app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
 	}
 
-	if (pkgmgrinfo_appinfo_get_appinfo(am_appid, &appinfo)) {
+	if (pkgmgrinfo_appinfo_get_appinfo(main_appid, &appinfo)) {
 		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
 	}
 
-	info->app_id = strdup(am_appid);
+	info->app_id = strdup(main_appid);
 	info->pkg_app_info = appinfo;
 	*app_info = info;
 
