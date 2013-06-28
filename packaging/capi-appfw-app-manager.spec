@@ -5,6 +5,7 @@ Release:    22
 Group:      API/C API
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
+Source1001: 	capi-appfw-app-manager.manifest
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(vconf)
@@ -29,6 +30,7 @@ The Application Manager API provides functions to get information about running 
 
 %prep
 %setup -q
+cp %{SOURCE1001} .
 
 
 %build
@@ -47,10 +49,12 @@ rm -rf %{buildroot}
 
 
 %files
+%manifest %{name}.manifest
 %{_libdir}/libcapi-appfw-app-manager.so.*
 %manifest capi-appfw-app-manager.manifest
 
 %files devel
+%manifest %{name}.manifest
 %{_includedir}/appfw/*.h
 %{_libdir}/libcapi-appfw-app-manager.so
 %{_libdir}/pkgconfig/*.pc
