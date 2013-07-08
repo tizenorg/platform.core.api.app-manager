@@ -1,0 +1,8 @@
+Change-Id: I1507baf9c83a25a7fc09a37470467c893fcade58
+Code-Review+2: Ryan Ware <ware@linux.intel.com>
+Verified+1: Ryan Ware <ware@linux.intel.com>
+Submitted-by: Ryan Ware <ware@linux.intel.com>
+Submitted-at: Mon, 08 Jul 2013 10:07:15 -0700
+Reviewed-on: https://review.tizen.org/gerrit/4492
+Project: platform/core/api/app-manager
+Branch: refs/heads/tizen
