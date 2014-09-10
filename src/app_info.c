@@ -51,7 +51,7 @@ static pkgmgr_client *package_event_listener = NULL;
 static app_manager_app_info_event_cb app_info_event_cb = NULL;
 static void *app_info_event_cb_data = NULL;
 
-static ail_cb_ret_e app_info_foreach_app_info_cb(const ail_appinfo_h ail_app_info, void *cb_data)
+static ail_cb_ret_e app_info_foreach_app_info_cb(const ail_appinfo_h ail_app_info, void *cb_data,uid_t uid)
 {
 	foreach_context_s *foreach_context = cb_data;
 	app_info_h app_info = NULL;
@@ -94,7 +94,7 @@ int app_info_foreach_app_info(app_manager_app_info_cb callback, void *user_data)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
 
-	ail_filter_list_appinfo_foreach(NULL, app_info_foreach_app_info_cb, &foreach_context);
+	ail_filter_list_usr_appinfo_foreach(NULL, app_info_foreach_app_info_cb, &foreach_context,getuid());
 
 	return APP_MANAGER_ERROR_NONE;
 }
