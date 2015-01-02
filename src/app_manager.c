@@ -58,6 +58,15 @@ static const char* app_manager_error_to_string(app_manager_error_e error)
 	case APP_MANAGER_ERROR_INVALID_PACKAGE:
 		return "INVALID_PACKAGE";
 
+	case APP_MANAGER_ERROR_APP_NO_RUNNING:
+		return "NO_RUNNING";
+
+	case APP_MANAGER_ERROR_REQUEST_FAILED:
+		return "AUL_REQUEST_FAILED";
+
+	case APP_MANAGER_ERROR_PERMISSION_DENIED:
+		return "PERMISSION_DENIED";
+
 	default :
 		return "UNKNOWN";
 	}
@@ -305,4 +314,108 @@ int app_manager_is_running(const char *app_id, bool *running)
 	*running = aul_app_is_running(app_id);
 
 	return APP_MANAGER_ERROR_NONE;
+}
+
+int app_manager_get_shared_data_path(const char *app_id, char **path)
+{
+	int r;
+	int retval = aul_get_app_shared_data_path_by_appid(app_id, path);
+
+	switch (retval) {
+	case AUL_R_OK:
+		r = APP_MANAGER_ERROR_NONE;
+		break;
+	case AUL_R_ENOAPP:
+		r = app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+		break;
+	case AUL_R_EINVAL:
+		r = app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+		break;
+	case AUL_R_ERROR:
+		r = app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		break;
+	default:
+		r = app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED, __FUNCTION__, NULL);
+		break;
+	}
+
+	return r;
+}
+
+int app_manager_get_shared_resource_path(const char *app_id, char **path)
+{
+	int r;
+	int retval = aul_get_app_shared_resource_path_by_appid(app_id, path);
+
+	switch (retval) {
+	case AUL_R_OK:
+		r = APP_MANAGER_ERROR_NONE;
+		break;
+	case AUL_R_ENOAPP:
+		r = app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+		break;
+	case AUL_R_EINVAL:
+		r = app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+		break;
+	case AUL_R_ERROR:
+		r = app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		break;
+	default:
+		r = app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED, __FUNCTION__, NULL);
+		break;
+	}
+
+	return r;
+}
+
+int app_manager_get_shared_trusted_path(const char *app_id, char **path)
+{
+	int r;
+	int retval = aul_get_app_shared_trusted_path_by_appid(app_id, path);
+
+	switch (retval) {
+	case AUL_R_OK:
+		r = APP_MANAGER_ERROR_NONE;
+		break;
+	case AUL_R_ENOAPP:
+		r = app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+		break;
+	case AUL_R_EINVAL:
+		r = app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+		break;
+	case AUL_R_ERROR:
+		r = app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		break;
+	default:
+		r = app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED, __FUNCTION__, NULL);
+		break;
+	}
+
+	return r;
+}
+
+int app_manager_get_external_shared_data_path(const char *app_id, char **path)
+{
+	int r;
+	int retval = aul_get_app_external_shared_data_path_by_appid(app_id, path);
+
+	switch (retval) {
+	case AUL_R_OK:
+		r = APP_MANAGER_ERROR_NONE;
+		break;
+	case AUL_R_ENOAPP:
+		r = app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+		break;
+	case AUL_R_EINVAL:
+		r = app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+		break;
+	case AUL_R_ERROR:
+		r = app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		break;
+	default:
+		r = app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED, __FUNCTION__, NULL);
+		break;
+	}
+
+	return r;
 }
