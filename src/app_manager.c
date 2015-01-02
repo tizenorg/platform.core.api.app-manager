@@ -18,6 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+
 #include <unistd.h>
 
 #include <aul.h>
@@ -303,6 +305,122 @@ int app_manager_is_running(const char *app_id, bool *running)
 	}
 
 	*running = aul_app_is_running(app_id);
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+int app_manager_get_shared_data_path(const char *app_id, char **path)
+{
+	int retval = aul_get_app_shared_data_path_by_appid(app_id, path);
+
+	if (retval == AUL_R_OK)
+	{
+		return APP_MANAGER_ERROR_NONE;
+	}
+	else if (retval == AUL_R_ENOAPP)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_EINVAL)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_ERROR)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
+	else
+	{
+		LOGE("Assert! : unknown error (%d)", retval);
+		assert(false);
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+int app_manager_get_shared_resource_path(const char *app_id, char **path)
+{
+	int retval = aul_get_app_shared_resource_path_by_appid(app_id, path);
+
+	if (retval == AUL_R_OK)
+	{
+		return APP_MANAGER_ERROR_NONE;
+	}
+	else if (retval == AUL_R_ENOAPP)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_EINVAL)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_ERROR)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
+	else
+	{
+		LOGE("Assert! : unknown error (%d)", retval);
+		assert(false);
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+int app_manager_get_shared_trusted_path(const char *app_id, char **path)
+{
+	int retval = aul_get_app_shared_trusted_path_by_appid(app_id, path);
+
+	if (retval == AUL_R_OK)
+	{
+		return APP_MANAGER_ERROR_NONE;
+	}
+	else if (retval == AUL_R_ENOAPP)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_EINVAL)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_ERROR)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
+	else
+	{
+		LOGE("Assert! : unknown error (%d)", retval);
+		assert(false);
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+int app_manager_get_external_shared_data_path(const char *app_id, char **path)
+{
+	int retval = aul_get_app_external_shared_data_path_by_appid(app_id, path);
+
+	if (retval == AUL_R_OK)
+	{
+		return APP_MANAGER_ERROR_NONE;
+	}
+	else if (retval == AUL_R_ENOAPP)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_EINVAL)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_ERROR)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
+	else
+	{
+		LOGE("Assert! : unknown error (%d)", retval);
+		assert(false);
+	}
 
 	return APP_MANAGER_ERROR_NONE;
 }
