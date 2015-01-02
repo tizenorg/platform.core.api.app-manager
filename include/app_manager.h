@@ -272,6 +272,82 @@ int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_da
 int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
 
 
+/**
+ * @brief  Gets the absolute path to the shared data directory of the application specified
+ *         with an application ID.
+ * @details     An application can only read the files of other application's shared data directory.
+ * @since_tizen 2.3
+ * @remarks     The specified @a path should be released.
+ *
+ * @param[in]      app_id  The ID of the application
+ * @param[in,out]  path    The absolute path to the shared data directory of the application
+ *                         specified with the @a app_id
+ * @return  @c 0 on success,
+ *          otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
+ * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ */
+int app_manager_get_shared_data_path(const char *app_id, char **path);
+
+/**
+ * @brief  Gets the absolute path to the shared resource directory of the application specified
+ *         with an application ID.
+ * @details     An application can only read the files of other application's shared resource directory.
+ * @since_tizen 2.3
+ * @remarks     The specified @a path should be released.
+ *
+ * @param[in]      app_id  The ID of the application
+ * @param[in,out]  path    The absolute path to the shared resource directory of the application
+ *                         specified with the @a app_id
+ * @return  @c 0 on success,
+ *          otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
+ * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ */
+int app_manager_get_shared_resource_path(const char *app_id, char **path);
+
+/**
+ * @brief  Gets the absolute path to the shared trusted directory of the application specified
+ *         with an application ID.
+ * @details     An application signed with the same certificate can read and write the files of
+ *              other application's shared trusted directory.
+ * @since_tizen 2.3
+ * @remarks     The specified @a path should be released.
+ *
+ * @param[in]      app_id  The ID of the application
+ * @param[in,out]  path    The absolute path to the shared trusted directory of the application
+ *                         specified with the @a app_id
+ * @return  @c 0 on success,
+ *          otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
+ * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ */
+int app_manager_get_shared_trusted_path(const char *app_id, char **path);
+
+/**
+ * @brief  Gets the absolute path to the shared data directory of the application specified
+ *         with an application ID.
+ * @details     An application can only read the files of other application's shared data directory.
+ * @since_tizen 2.3
+ * @remarks     The specified @a path should be released.
+ *
+ * @param[in]      app_id  The ID of the application
+ * @param[in,out]  path    The absolute path to the shared data directory of the application
+ *                         specified with the @a app_id
+ * @return  @c 0 on success,
+ *          otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
+ * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ */
+int app_manager_get_external_shared_data_path(const char *app_id, char **path);
 
 #define __START_OF_DEPRECATED_API
 typedef bool (*app_manager_ui_app_info_cb) (ui_app_info_h ui_app_info, void *user_data);
