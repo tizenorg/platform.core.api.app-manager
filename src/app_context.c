@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an AS IS BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 
 
@@ -28,7 +28,7 @@
 
 #include <app_context.h>
 #include <app_manager.h>
-#include <app_manager_private.h>
+#include <app_manager_internal.h>
 
 #ifdef LOG_TAG
 #undef LOG_TAG
@@ -97,7 +97,10 @@ int app_context_foreach_app_context(app_manager_app_context_cb callback, void *u
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
 
-	aul_app_get_running_app_info(app_context_foreach_app_context_cb, &foreach_context);
+	if (aul_app_get_running_app_info(app_context_foreach_app_context_cb, &foreach_context) != AUL_R_OK)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
+	}
 
 	return APP_MANAGER_ERROR_NONE;
 }
@@ -348,7 +351,7 @@ static bool app_context_load_all_app_context_cb_locked(app_context_h app_context
 
 	if (app_context_clone(&app_context_cloned, app_context) == APP_MANAGER_ERROR_NONE)
 	{
-		LOGI("[%s] app_id(%s), pid(%d)", __FUNCTION__, app_context->app_id, app_context->pid);
+		SECURE_LOGI("[%s] app_id(%s), pid(%d)", __FUNCTION__, app_context->app_id, app_context->pid);
 
 		if (event_cb_context != NULL && event_cb_context->pid_table != NULL)
 		{
@@ -374,7 +377,7 @@ static void app_context_pid_table_entry_destroyed_cb(void * data)
 		int pid;
 		app_context_get_app_id(app_context, &app_id);
 		app_context_get_pid(app_context, &pid);
-		LOGI("[%s] app_id(%s), pid(%d)", __FUNCTION__, app_context->app_id, app_context->pid);
+		SECURE_LOGI("[%s] app_id(%s), pid(%d)", __FUNCTION__, app_context->app_id, app_context->pid);
 		free(app_id);
 
 		app_context_destroy(app_context);
@@ -452,7 +455,7 @@ int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *us
 		}
 
 		event_cb_context->pid_table = g_hash_table_new_full(g_int_hash, g_int_equal, NULL, app_context_pid_table_entry_destroyed_cb);
-	
+
 		if (event_cb_context->pid_table == NULL)
 		{
 			return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "failed to initialize pid-table");
@@ -464,7 +467,7 @@ int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *us
 		aul_listen_app_launch_signal(app_context_launched_event_cb, NULL);
 
 	}
-	
+
 	event_cb_context->callback = callback;
 	event_cb_context->user_data = user_data;
 

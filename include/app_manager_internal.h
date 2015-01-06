@@ -14,16 +14,33 @@
  * limitations under the License. 
  */
 
+#ifndef __TIZEN_APPFW_APP_MANAGER_INTERNAL_H
+#define __TIZEN_APPFW_APP_MANAGER_INTERNAL_H
 
-#ifndef __TIZEN_APPFW_APP_MANAGER_PRIVATE_H__
-#define __TIZEN_APPFW_APP_MANAGER_PRIVATE_H__
-
-#include <app_context.h>
-#include <app_info.h>
+#include "app_manager.h"
+#include "app_info_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @file app_manager_internal.h
+ */
+
+/**
+ * @addtogroup CAPI_APPLICATION_MANAGER_MODULE
+ * @{
+ */
+
+#define __START_OF_DEPRECATED_API
+typedef void (*app_manager_app_info_event_cb) (app_info_h app_info, app_info_event_e event, void *user_data);
+int app_manager_get_ui_app_info(const char *app_id, ui_app_info_h *ui_app_info);
+int app_manager_get_service_app_info(const char *app_id, service_app_info_h *service_app_info);
+int app_manager_get_app_package(const char *app_id, app_context_h *app_context);
+int app_manager_set_app_info_event_cb(app_manager_app_info_event_cb callback, void *user_data);
+void app_manager_unset_app_info_event_cb(void);
+#define __END_OF_DEPRECATED_API
 
 int app_manager_error(app_manager_error_e error, const char* function, const char *description);
 
@@ -43,16 +60,12 @@ int app_info_set_event_cb(app_manager_app_info_event_cb callback, void *user_dat
 
 void app_info_unset_event_cb(void);
 
-
-#define __START_OF_DEPRECATED_API
-int ui_app_info_get_app_info(const char *app_id, ui_app_info_h *ui_app_info);
-int service_app_info_get_app_info(const char *app_id, service_app_info_h *service_app_info);
-#define __END_OF_DEPRECATED_API
-
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __TIZEN_APPFW_APP_MANAGER_PRIVATE_H__ */
-
+#endif /* __TIZEN_APPFW_APP_MANAGER_INTERNAL_H */

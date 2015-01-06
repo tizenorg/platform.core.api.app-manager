@@ -10,7 +10,7 @@ SET(PREFIX ${CMAKE_INSTALL_PREFIX})
 SET(INC_DIR include)
 INCLUDE_DIRECTORIES(${INC_DIR})
 
-SET(requires "capi-base-common dlog vconf aul ail pkgmgr pkgmgr-info glib-2.0")
+SET(requires "capi-base-common dlog vconf aul pkgmgr pkgmgr-info glib-2.0")
 SET(pc_requires "capi-base-common")
 
 INCLUDE(FindPkgConfig)
@@ -94,3 +94,4 @@ ADD_CUSTOM_COMMAND(
 
 ENDIF(UNIX)
 
+add_subdirectory(tool)
