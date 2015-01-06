@@ -18,13 +18,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <unistd.h>
 
 #include <aul.h>
 #include <dlog.h>
 
 #include <app_manager.h>
-#include <app_manager_private.h>
+#include <app_manager_internal.h>
 
 #ifdef LOG_TAG
 #undef LOG_TAG
@@ -38,37 +39,28 @@ static const char* app_manager_error_to_string(app_manager_error_e error)
 	switch (error)
 	{
 	case APP_MANAGER_ERROR_NONE:
-		return "NONE";
+		return "Successful";
 
 	case APP_MANAGER_ERROR_INVALID_PARAMETER:
-		return "INVALID_PARAMETER";
+		return "Invalid parameter";
 
 	case APP_MANAGER_ERROR_OUT_OF_MEMORY:
-		return "OUT_OF_MEMORY";
+		return "Out of memory";
 
 	case APP_MANAGER_ERROR_IO_ERROR:
-		return "IO_ERROR";
+		return "IO error";
 
 	case APP_MANAGER_ERROR_NO_SUCH_APP:
-		return "NO_SUCH_APP";
+		return "No such application";
 
 	case APP_MANAGER_ERROR_DB_FAILED:
-		return "DB_FAILED";
+		return "DB error";
 
 	case APP_MANAGER_ERROR_INVALID_PACKAGE:
-		return "INVALID_PACKAGE";
+		return "Invalid package";
 
-	case APP_MANAGER_ERROR_APP_NO_RUNNING:
-		return "NO_RUNNING";
-
-	case APP_MANAGER_ERROR_REQUEST_FAILED:
-		return "AUL_REQUEST_FAILED";
-
-	case APP_MANAGER_ERROR_PERMISSION_DENIED:
-		return "PERMISSION_DENIED";
-
-	default :
-		return "UNKNOWN";
+	default:
+		return "Unknown";
 	}
 }
 
@@ -89,9 +81,7 @@ int app_manager_error(app_manager_error_e error, const char* function, const cha
 
 int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data)
 {
-	int retval;
-
-	retval = app_context_set_event_cb(callback, user_data);
+	int retval = app_context_set_event_cb(callback, user_data);
 
 	if (retval != APP_MANAGER_ERROR_NONE)
 	{
@@ -110,9 +100,7 @@ void app_manager_unset_app_context_event_cb(void)
 
 int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *user_data)
 {
-	int retval;
-
-	retval = app_context_foreach_app_context(callback, user_data);
+	int retval = app_context_foreach_app_context(callback, user_data);
 
 	if (retval != APP_MANAGER_ERROR_NONE)
 	{
@@ -126,9 +114,7 @@ int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *u
 
 int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
 {
-	int retval;
-
-	retval = app_context_get_app_context(app_id, app_context);
+	int retval = app_context_get_app_context(app_id, app_context);
 
 	if (retval != APP_MANAGER_ERROR_NONE)
 	{
@@ -143,6 +129,7 @@ int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
 int app_manager_resume_app(app_context_h app_context)
 {
 	char *app_id;
+	int retval = APP_MANAGER_ERROR_NONE;
 
 	if (app_context == NULL)
 	{
@@ -154,16 +141,37 @@ int app_manager_resume_app(app_context_h app_context)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, "failed to get the application ID");
 	}
 
-	aul_resume_app(app_id);
+	if (aul_app_is_running(app_id) == 0)
+	{
+		free(app_id);
+		return app_manager_error(APP_MANAGER_ERROR_APP_NO_RUNNING, __FUNCTION__, NULL);
+	}
 
+	retval = aul_resume_app(app_id);
+
+	if (retval == AUL_R_EINVAL)
+	{
+		free(app_id);
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+	}
+	else if (retval == AUL_R_EILLACC)
+	{
+		free(app_id);
+		return app_manager_error(APP_MANAGER_ERROR_PERMISSION_DENIED, __FUNCTION__, NULL);
+	}
+	else if (retval < 0)
+	{
+		free(app_id);
+		return app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED, __FUNCTION__, NULL);
+	}
+
+	free(app_id);
 	return APP_MANAGER_ERROR_NONE;
 }
 
 int app_manager_set_app_info_event_cb(app_manager_app_info_event_cb callback, void *user_data)
 {
-	int retval;
-
-	retval = app_info_set_event_cb(callback, user_data);
+	int retval = app_info_set_event_cb(callback, user_data);
 
 	if (retval != APP_MANAGER_ERROR_NONE)
 	{
@@ -213,38 +221,6 @@ int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
 	}
 }
 
-int app_manager_get_ui_app_info(const char *app_id, ui_app_info_h *ui_app_info)
-{
-	int retval;
-
-	retval = ui_app_info_get_app_info(app_id, ui_app_info);
-
-	if (retval != APP_MANAGER_ERROR_NONE)
-	{
-		return app_manager_error(retval, __FUNCTION__, NULL);
-	}
-	else
-	{
-		return APP_MANAGER_ERROR_NONE;
-	}
-}
-
-int app_manager_get_service_app_info(const char *app_id, service_app_info_h *service_app_info)
-{
-	int retval;
-
-	retval = service_app_info_get_app_info(app_id, service_app_info);
-
-	if (retval != APP_MANAGER_ERROR_NONE)
-	{
-		return app_manager_error(retval, __FUNCTION__, NULL);
-	}
-	else
-	{
-		return APP_MANAGER_ERROR_NONE;
-	}
-}
-
 int app_manager_get_package(pid_t pid, char **package)
 {
 	// TODO: this function must be deprecated
@@ -281,6 +257,7 @@ int app_manager_get_app_id(pid_t pid, char **app_id)
 
 int app_manager_terminate_app(app_context_h app_context)
 {
+	int retval = APP_MANAGER_ERROR_NONE;
 	pid_t pid = 0;
 
 	if (app_context == NULL)
@@ -292,7 +269,22 @@ int app_manager_terminate_app(app_context_h app_context)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, "failed to get the process ID");
 	}
 
-	aul_terminate_pid(pid);
+	retval = aul_terminate_pid(pid);
+
+	if (retval == AUL_R_EINVAL)
+	{
+		LOGE("[%s] APP_MANAGER_ERROR_INVALID_PARAMETER(0x%08x) : Invalid param", __FUNCTION__, APP_MANAGER_ERROR_INVALID_PARAMETER);
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+	}
+	else if (retval == AUL_R_EILLACC)
+	{
+		LOGE("[%s] APP_MANAGER_ERROR_PERMISSION_DENIED(0x%08x) : Permission denied", __FUNCTION__, APP_MANAGER_ERROR_PERMISSION_DENIED);
+		return APP_MANAGER_ERROR_PERMISSION_DENIED;
+	}
+	else if (retval < 0)
+	{
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
 
 	return APP_MANAGER_ERROR_NONE;
 }
@@ -312,6 +304,34 @@ int app_manager_is_running(const char *app_id, bool *running)
 	}
 
 	*running = aul_app_is_running(app_id);
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+int app_manager_open_app(const char *app_id)
+{
+	int retval;
+	retval = aul_open_app(app_id);
+
+	if (retval == AUL_R_ERROR)
+	{
+		LOGE("[%s] APP_MANAGER_ERROR_NO_SUCH_APP(0x%08x) : No such application", __FUNCTION__, APP_MANAGER_ERROR_NO_SUCH_APP);
+		return APP_MANAGER_ERROR_NO_SUCH_APP;
+	}
+	else if (retval == AUL_R_EINVAL)
+	{
+		LOGE("[%s] APP_MANAGER_ERROR_INVALID_PARAMETER(0x%08x) : Invalid param", __FUNCTION__, APP_MANAGER_ERROR_INVALID_PARAMETER);
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+	}
+	else if (retval == AUL_R_EILLACC)
+	{
+		LOGE("[%s] APP_MANAGER_ERROR_PERMISSION_DENIED(0x%08x) : Permission denied", __FUNCTION__, APP_MANAGER_ERROR_PERMISSION_DENIED);
+		return APP_MANAGER_ERROR_PERMISSION_DENIED;
+	}
+	else if (retval < 0)
+	{
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
 
 	return APP_MANAGER_ERROR_NONE;
 }
