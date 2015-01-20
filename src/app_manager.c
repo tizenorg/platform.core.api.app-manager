@@ -165,26 +165,6 @@ int app_manager_resume_app(app_context_h app_context)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_manager_set_app_info_event_cb(app_manager_app_info_event_cb callback, void *user_data)
-{
-	int retval = app_info_set_event_cb(callback, user_data);
-
-	if (retval != APP_MANAGER_ERROR_NONE)
-	{
-		return app_manager_error(retval, __FUNCTION__, NULL);
-	}
-	else
-	{
-		return APP_MANAGER_ERROR_NONE;
-	}
-}
-
-void app_manager_unset_app_info_event_cb(void)
-{
-	app_info_unset_event_cb();
-}
-
-
 int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_data)
 {
 	int retval;
@@ -205,7 +185,7 @@ int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
 {
 	int retval;
 
-	retval = app_info_get_app_info(app_id, app_info);
+	retval = app_info_create(app_id, app_info);
 
 	if (retval != APP_MANAGER_ERROR_NONE)
 	{
@@ -215,12 +195,6 @@ int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
 	{
 		return APP_MANAGER_ERROR_NONE;
 	}
-}
-
-int app_manager_get_package(pid_t pid, char **package)
-{
-	// TODO: this function must be deprecated
-	return app_manager_get_app_id(pid, package);
 }
 
 int app_manager_get_app_id(pid_t pid, char **app_id)

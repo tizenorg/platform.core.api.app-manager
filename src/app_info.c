@@ -57,10 +57,6 @@ typedef struct _foreach_metada_context_{
 	void *user_data;
 } foreach_metadata_context_s;
 
-static pkgmgr_client *package_event_listener = NULL;
-static app_manager_app_info_event_cb app_info_event_cb = NULL;
-static void *app_info_event_cb_data = NULL;
-
 static int app_info_convert_str_property(const char *property, char **converted_property)
 {
 	if (property == NULL)
@@ -195,11 +191,6 @@ int app_info_foreach_app_info(app_manager_app_info_cb callback, void *user_data)
 	pkgmgrinfo_appinfo_get_usr_installed_list(app_info_foreach_app_info_cb, getuid(), &foreach_context);
 
 	return APP_MANAGER_ERROR_NONE;
-}
-
-int app_info_get_app_info(const char *app_id, app_info_h *app_info)
-{
-	return app_info_create(app_id, app_info);
 }
 
 int app_info_create(const char *app_id, app_info_h *app_info)
@@ -570,93 +561,6 @@ int app_info_clone(app_info_h *clone, app_info_h app_info)
 	}
 
 	return APP_MANAGER_ERROR_NONE;
-}
-
-static app_info_event_e app_info_get_app_info_event(const char *value)
-{
-	if (!strcasecmp(value, "install"))
-	{
-		return APP_INFO_EVENT_INSTALLED;
-	}
-	else if (!strcasecmp(value, "uninstall"))
-	{
-		return APP_INFO_EVENT_UNINSTALLED;
-	}
-	else if (!strcasecmp(value, "update"))
-	{
-		return APP_INFO_EVENT_UPDATED;
-	}
-	else
-	{
-		return APP_MANAGER_ERROR_INVALID_PARAMETER;
-	}
-}
-
-static int app_info_package_event_listener_cb(
-	int id, const char *type, const char *package, const char *key, const char *val, const void *msg, void *data)
-{
-	static app_info_event_e event_type = -1;
-	static int req_id = -1;
-	app_info_h app_info;
-
-	if (!strcasecmp(key, "start"))
-	{
-		req_id = id;
-		event_type = app_info_get_app_info_event(val);
-	}
-	else if (!strcasecmp(key, "end") && !strcasecmp(val, "ok")
-		&& event_type >= 0 && id == req_id)
-	{
-		if (app_info_create(package, &app_info) == APP_MANAGER_ERROR_NONE)
-		{
-			if(app_info_event_cb)
-				app_info_event_cb(app_info, event_type, app_info_event_cb_data);
-			app_info_destroy(app_info);
-		}
-
-		req_id = -1;
-		event_type = -1;
-	}
-
-	return APP_MANAGER_ERROR_NONE;
-}
-
-int app_info_set_event_cb(app_manager_app_info_event_cb callback, void *user_data)
-{
-	if (callback == NULL)
-	{
-		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
-	}
-
-	if (app_info_event_cb == NULL)
-	{
-		package_event_listener = pkgmgr_client_new(PC_LISTENING);
-
-		if (package_event_listener == NULL)
-		{
-			return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
-		}
-	}
-
-	app_info_event_cb = callback;
-	app_info_event_cb_data = user_data;
-
-	pkgmgr_client_listen_status(package_event_listener, app_info_package_event_listener_cb, NULL);
-
-	return APP_MANAGER_ERROR_NONE;
-}
-
-
-void app_info_unset_event_cb(void)
-{
-	if (app_info_event_cb != NULL)
-	{
-		pkgmgr_client_free(package_event_listener);
-		package_event_listener = NULL;
-	}
-
-	app_info_event_cb = NULL;
-	app_info_event_cb_data = NULL;
 }
 
 int app_info_filter_create(app_info_filter_h *handle)
