@@ -217,12 +217,6 @@ int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
 	}
 }
 
-int app_manager_get_package(pid_t pid, char **package)
-{
-	// TODO: this function must be deprecated
-	return app_manager_get_app_id(pid, package);
-}
-
 int app_manager_get_app_id(pid_t pid, char **app_id)
 {
 	char buffer[256] = {0, };

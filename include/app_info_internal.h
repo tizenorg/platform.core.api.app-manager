@@ -30,8 +30,6 @@ extern "C" {
 */
 
 #define __START_OF_DEPRECATED_API
-int app_info_get_name(app_info_h app_info, char **name);
-
 typedef struct ui_app_info_s *ui_app_info_h;
 typedef struct service_app_info_s *service_app_info_h;
 int ui_app_info_destroy(ui_app_info_h ui_app_info);
