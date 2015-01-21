@@ -77,8 +77,7 @@ int app_manager_error(app_manager_error_e error, const char* function, const cha
 	return error;
 }
 
-
-int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data)
+API int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data)
 {
 	int retval = app_context_set_event_cb(callback, user_data);
 
@@ -92,12 +91,12 @@ int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callba
 	}
 }
 
-void app_manager_unset_app_context_event_cb(void)
+API void app_manager_unset_app_context_event_cb(void)
 {
 	app_context_unset_event_cb();
 }
 
-int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *user_data)
+API int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *user_data)
 {
 	int retval = app_context_foreach_app_context(callback, user_data);
 
@@ -111,7 +110,7 @@ int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *u
 	}
 }
 
-int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
+API int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
 {
 	int retval = app_context_get_app_context(app_id, app_context);
 
@@ -125,7 +124,7 @@ int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
 	}
 }
 
-int app_manager_resume_app(app_context_h app_context)
+API int app_manager_resume_app(app_context_h app_context)
 {
 	char *app_id;
 	int retval;
@@ -165,7 +164,7 @@ int app_manager_resume_app(app_context_h app_context)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_data)
+API int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_data)
 {
 	int retval;
 
@@ -181,7 +180,7 @@ int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_da
 	}
 }
 
-int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
+API int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
 {
 	int retval;
 
@@ -197,7 +196,7 @@ int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
 	}
 }
 
-int app_manager_get_app_id(pid_t pid, char **app_id)
+API int app_manager_get_app_id(pid_t pid, char **app_id)
 {
 	char buffer[256] = {0, };
 	char *app_id_dup = NULL;
@@ -225,7 +224,7 @@ int app_manager_get_app_id(pid_t pid, char **app_id)
 
 }
 
-int app_manager_terminate_app(app_context_h app_context)
+API int app_manager_terminate_app(app_context_h app_context)
 {
 	int retval;
 	pid_t pid = 0;
@@ -259,7 +258,7 @@ int app_manager_terminate_app(app_context_h app_context)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_manager_is_running(const char *app_id, bool *running)
+API int app_manager_is_running(const char *app_id, bool *running)
 {
 	if (app_id == NULL)
 	{
@@ -278,7 +277,7 @@ int app_manager_is_running(const char *app_id, bool *running)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_manager_open_app(const char *app_id)
+API int app_manager_open_app(const char *app_id)
 {
 	int retval;
 	retval = aul_open_app(app_id);
@@ -306,7 +305,7 @@ int app_manager_open_app(const char *app_id)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_manager_get_shared_data_path(const char *app_id, char **path)
+API int app_manager_get_shared_data_path(const char *app_id, char **path)
 {
 	int r;
 	int retval = aul_get_app_shared_data_path_by_appid(app_id, path);
@@ -332,7 +331,7 @@ int app_manager_get_shared_data_path(const char *app_id, char **path)
 	return r;
 }
 
-int app_manager_get_shared_resource_path(const char *app_id, char **path)
+API int app_manager_get_shared_resource_path(const char *app_id, char **path)
 {
 	int r;
 	int retval = aul_get_app_shared_resource_path_by_appid(app_id, path);
@@ -358,7 +357,7 @@ int app_manager_get_shared_resource_path(const char *app_id, char **path)
 	return r;
 }
 
-int app_manager_get_shared_trusted_path(const char *app_id, char **path)
+API int app_manager_get_shared_trusted_path(const char *app_id, char **path)
 {
 	int r;
 	int retval = aul_get_app_shared_trusted_path_by_appid(app_id, path);
@@ -384,7 +383,7 @@ int app_manager_get_shared_trusted_path(const char *app_id, char **path)
 	return r;
 }
 
-int app_manager_get_external_shared_data_path(const char *app_id, char **path)
+API int app_manager_get_external_shared_data_path(const char *app_id, char **path)
 {
 	int r;
 	int retval = aul_get_app_external_shared_data_path_by_appid(app_id, path);

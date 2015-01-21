@@ -19,6 +19,10 @@
 
 #include "app_manager.h"
 
+#ifndef API
+#define API __attribute__ ((visibility("default")))
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -94,7 +94,7 @@ static int app_info_convert_bool_property(const char *property, char **converted
 	return 0;
 }
 
-int app_info_foreach_app_filter_cb(pkgmgrinfo_appinfo_h handle, void *user_data)
+static int app_info_foreach_app_filter_cb(pkgmgrinfo_appinfo_h handle, void *user_data)
 {
 	int retval = 0;
 	char *appid = NULL;
@@ -140,7 +140,7 @@ static int app_info_foreach_app_metadata_cb(const char *metadata_key, const char
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_foreach_app_info_cb(pkgmgrinfo_appinfo_h handle, void *cb_data)
+static int app_info_foreach_app_info_cb(pkgmgrinfo_appinfo_h handle, void *cb_data)
 {
 	foreach_context_s *foreach_context = cb_data;
 	app_info_h app_info = NULL;
@@ -193,7 +193,7 @@ int app_info_foreach_app_info(app_manager_app_info_cb callback, void *user_data)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_create(const char *app_id, app_info_h *app_info)
+API int app_info_create(const char *app_id, app_info_h *app_info)
 {
 	pkgmgrinfo_pkginfo_h pkginfo = NULL;
 	pkgmgrinfo_appinfo_h appinfo = NULL;
@@ -241,7 +241,7 @@ int app_info_create(const char *app_id, app_info_h *app_info)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_destroy(app_info_h app_info)
+API int app_info_destroy(app_info_h app_info)
 {
 	if (app_info == NULL)
 	{
@@ -256,7 +256,7 @@ int app_info_destroy(app_info_h app_info)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_get_app_id(app_info_h app_info, char **app_id)
+API int app_info_get_app_id(app_info_h app_info, char **app_id)
 {
 	char *app_id_dup;
 
@@ -277,7 +277,7 @@ int app_info_get_app_id(app_info_h app_info, char **app_id)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_get_exec(app_info_h app_info, char **exec)
+API int app_info_get_exec(app_info_h app_info, char **exec)
 {
 	char *val;
 	char *app_exec_dup;
@@ -304,7 +304,7 @@ int app_info_get_exec(app_info_h app_info, char **exec)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_get_label(app_info_h app_info, char **label)
+API int app_info_get_label(app_info_h app_info, char **label)
 {
 	char *val;
 	char *app_label_dup;
@@ -331,7 +331,7 @@ int app_info_get_label(app_info_h app_info, char **label)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_get_localed_label(const char *app_id, const char *locale, char **label)
+API int app_info_get_localed_label(const char *app_id, const char *locale, char **label)
 {
 	char *val;
 	char *app_label_dup;
@@ -359,7 +359,7 @@ int app_info_get_localed_label(const char *app_id, const char *locale, char **la
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_get_icon(app_info_h app_info, char **path)
+API int app_info_get_icon(app_info_h app_info, char **path)
 {
 	char *val;
 	char *app_icon_dup;
@@ -386,7 +386,7 @@ int app_info_get_icon(app_info_h app_info, char **path)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_get_package(app_info_h app_info, char **package)
+API int app_info_get_package(app_info_h app_info, char **package)
 {
 	char *val;
 	char *app_package_dup;
@@ -409,8 +409,7 @@ int app_info_get_package(app_info_h app_info, char **package)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-
-int app_info_get_type(app_info_h app_info, char **type)
+API int app_info_get_type(app_info_h app_info, char **type)
 {
 	char *val;
 	char *app_type_dup;
@@ -433,7 +432,7 @@ int app_info_get_type(app_info_h app_info, char **type)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_foreach_metadata(app_info_h app_info, app_info_metadata_cb callback, void *user_data)
+API int app_info_foreach_metadata(app_info_h app_info, app_info_metadata_cb callback, void *user_data)
 {
 	int retval = 0;
 
@@ -456,7 +455,7 @@ int app_info_foreach_metadata(app_info_h app_info, app_info_metadata_cb callback
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_is_nodisplay(app_info_h app_info, bool *nodisplay)
+API int app_info_is_nodisplay(app_info_h app_info, bool *nodisplay)
 {
 	bool val;
 
@@ -472,7 +471,7 @@ int app_info_is_nodisplay(app_info_h app_info, bool *nodisplay)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_is_enabled(app_info_h app_info, bool *enabled)
+API int app_info_is_enabled(app_info_h app_info, bool *enabled)
 {
 	bool val;
 
@@ -489,7 +488,7 @@ int app_info_is_enabled(app_info_h app_info, bool *enabled)
 
 }
 
-int app_info_is_equal(app_info_h lhs, app_info_h rhs, bool *equal)
+API int app_info_is_equal(app_info_h lhs, app_info_h rhs, bool *equal)
 {
 	if (lhs == NULL || rhs == NULL || equal == NULL)
 	{
@@ -508,7 +507,7 @@ int app_info_is_equal(app_info_h lhs, app_info_h rhs, bool *equal)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_is_onboot(app_info_h app_info, bool *onboot)
+API int app_info_is_onboot(app_info_h app_info, bool *onboot)
 {
 	bool val;
 
@@ -526,7 +525,7 @@ int app_info_is_onboot(app_info_h app_info, bool *onboot)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_is_preload(app_info_h app_info, bool *preload)
+API int app_info_is_preload(app_info_h app_info, bool *preload)
 {
 	bool val;
 
@@ -544,7 +543,7 @@ int app_info_is_preload(app_info_h app_info, bool *preload)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_clone(app_info_h *clone, app_info_h app_info)
+API int app_info_clone(app_info_h *clone, app_info_h app_info)
 {
 	int retval;
 
@@ -563,7 +562,7 @@ int app_info_clone(app_info_h *clone, app_info_h app_info)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_filter_create(app_info_filter_h *handle)
+API int app_info_filter_create(app_info_filter_h *handle)
 {
 	int retval = 0;
 	app_info_filter_h filter_created = NULL;
@@ -593,7 +592,7 @@ int app_info_filter_create(app_info_filter_h *handle)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_filter_destroy(app_info_filter_h handle)
+API int app_info_filter_destroy(app_info_filter_h handle)
 {
 	int retval = 0;
 
@@ -612,7 +611,7 @@ int app_info_filter_destroy(app_info_filter_h handle)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_filter_add_bool(app_info_filter_h handle, const char *property, const bool value)
+API int app_info_filter_add_bool(app_info_filter_h handle, const char *property, const bool value)
 {
 	int retval = 0;
 	char *converted_property = NULL;
@@ -637,7 +636,7 @@ int app_info_filter_add_bool(app_info_filter_h handle, const char *property, con
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_filter_add_string(app_info_filter_h handle, const char *property, const char *value)
+API int app_info_filter_add_string(app_info_filter_h handle, const char *property, const char *value)
 {
 	int retval = 0;
 	char *converted_property = NULL;
@@ -662,7 +661,7 @@ int app_info_filter_add_string(app_info_filter_h handle, const char *property, c
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_filter_count_appinfo(app_info_filter_h handle, int *count)
+API int app_info_filter_count_appinfo(app_info_filter_h handle, int *count)
 {
 	int retval = 0;
 
@@ -680,7 +679,7 @@ int app_info_filter_count_appinfo(app_info_filter_h handle, int *count)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb callback, void * user_data)
+API int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb callback, void * user_data)
 {
 	int retval = 0;
 
@@ -703,7 +702,7 @@ int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_metadata_filter_create(app_info_metadata_filter_h *handle)
+API int app_info_metadata_filter_create(app_info_metadata_filter_h *handle)
 {
 	int retval = 0;
 	app_info_metadata_filter_h filter_created = NULL;
@@ -733,7 +732,7 @@ int app_info_metadata_filter_create(app_info_metadata_filter_h *handle)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_metadata_filter_destroy(app_info_metadata_filter_h handle)
+API int app_info_metadata_filter_destroy(app_info_metadata_filter_h handle)
 {
 	int retval = 0;
 
@@ -752,7 +751,7 @@ int app_info_metadata_filter_destroy(app_info_metadata_filter_h handle)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_metadata_filter_add(app_info_metadata_filter_h handle, const char *key, const char *value)
+API int app_info_metadata_filter_add(app_info_metadata_filter_h handle, const char *key, const char *value)
 {
 	int retval = 0;
 
@@ -770,7 +769,7 @@ int app_info_metadata_filter_add(app_info_metadata_filter_h handle, const char *
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int app_info_metadata_filter_foreach(app_info_metadata_filter_h handle, app_info_filter_cb callback, void *user_data)
+API int app_info_metadata_filter_foreach(app_info_metadata_filter_h handle, app_info_filter_cb callback, void *user_data)
 {
 	int retval = 0;
 
