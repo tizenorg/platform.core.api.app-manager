@@ -24,9 +24,9 @@
 #include <package-manager.h>
 #include <dlog.h>
 
-#include <app_info.h>
-#include <app_manager.h>
-#include <app_manager_internal.h>
+#include "app_info.h"
+#include "app_manager.h"
+#include "app_manager_internal.h"
 
 #ifdef LOG_TAG
 #undef LOG_TAG

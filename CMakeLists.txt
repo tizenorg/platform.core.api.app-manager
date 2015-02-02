@@ -44,12 +44,7 @@ SET_TARGET_PROPERTIES(${fw_name}
 )
 
 INSTALL(TARGETS ${fw_name} DESTINATION ${LIB_INSTALL_DIR})
-INSTALL(
-        DIRECTORY ${INC_DIR}/ DESTINATION include/appfw
-        FILES_MATCHING
-        PATTERN "*_private.h" EXCLUDE
-        PATTERN "${INC_DIR}/*.h"
-        )
+INSTALL(DIRECTORY ${INC_DIR}/ DESTINATION include/appfw)
 
 SET(PC_NAME ${fw_name})
 SET(PC_REQUIRED ${pc_requires})
