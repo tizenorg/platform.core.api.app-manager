@@ -384,7 +384,7 @@ static void app_context_pid_table_entry_destroyed_cb(void * data)
 
 static int app_context_launched_event_cb(pid_t pid, void *data)
 {
-	app_context_h app_context;
+	app_context_h app_context = NULL;
 
 	app_context_lock_event_cb_context();
 
