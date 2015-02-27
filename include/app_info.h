@@ -146,6 +146,10 @@ int app_info_get_app_id(app_info_h app_info, char **app_id);
  */
 int app_info_get_exec(app_info_h app_info, char **exec);
 
+/* FIXME: Temporary patch to prevent build break.
+   This MUST be removed after packages using the below API are modified. */
+#define app_info_get_name app_info_get_label
+
 /**
  * @brief  Gets the label of the application.
  * @since_tizen 2.3

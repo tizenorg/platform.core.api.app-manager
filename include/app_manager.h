@@ -177,6 +177,10 @@ int app_manager_get_app_context(const char *app_id, app_context_h *app_context);
  */
 int app_manager_get_app_id(pid_t pid, char **app_id);
 
+/* FIXME: Temporary patch to prevent build break.
+   This MUST be removed after packages using the below API are modified. */
+#define app_manager_get_package app_manager_get_app_id
+
 /**
  * @brief  Checks whether the application with the given package name is running.
  * @since_tizen 2.3
