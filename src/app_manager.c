@@ -258,6 +258,41 @@ API int app_manager_terminate_app(app_context_h app_context)
 	return APP_MANAGER_ERROR_NONE;
 }
 
+API int app_manager_request_terminate_bg_app(app_context_h app_context)
+{
+#if 0
+	int retval = APP_MANAGER_ERROR_NONE;
+	pid_t pid = 0;
+#endif
+	if (app_context == NULL)
+	{
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+	}
+	/* TODO: implement aul_terminate_bgapp_pid */
+#if 0
+	if (app_context_get_pid(app_context, &pid) != APP_MANAGER_ERROR_NONE) {
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, "failed to get the process ID");
+	}
+
+	retval = aul_terminate_bgapp_pid(pid);
+	if (retval == AUL_R_EINVAL)
+	{
+		LOGE("[%s] APP_MANAGER_ERROR_INVALID_PARAMETER(0x%08x) : Invalid param", __FUNCTION__, APP_MANAGER_ERROR_INVALID_PARAMETER);
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+	}
+	else if (retval == AUL_R_EILLACC)
+	{
+		LOGE("[%s] APP_MANAGER_ERROR_PERMISSION_DENIED(0x%08x) : Permission denied", __FUNCTION__, APP_MANAGER_ERROR_PERMISSION_DENIED);
+		return APP_MANAGER_ERROR_PERMISSION_DENIED;
+	}
+	else if (retval < 0)
+	{
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
+#endif
+	return APP_MANAGER_ERROR_NONE;
+}
+
 API int app_manager_is_running(const char *app_id, bool *running)
 {
 	if (app_id == NULL)

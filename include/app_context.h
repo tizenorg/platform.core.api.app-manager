@@ -37,14 +37,14 @@ extern "C" {
 
 /**
  * @brief  Application context handle.
- * @since_tizen  2.3
+ * @since_tizen  @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 typedef struct app_context_s *app_context_h;
 
 
 /**
  * @brief  Enumeration for Application Context Event.
- * @since_tizen  2.3
+ * @since_tizen  @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 typedef enum
 {
@@ -55,7 +55,7 @@ typedef enum
 
 /**
  * @brief  Destroys the application context handle and releases all its resources.
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[in]   app_context  The application context handle
  * @return      @c 0 on success,
  *              otherwise a negative error value
@@ -69,7 +69,7 @@ int app_context_destroy(app_context_h app_context);
 
 /**
  * @brief    Gets the package with the given application context.
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @remarks  This function is @b deprecated. Use app_context_get_app_id() instead. \n
  *           You must release @a package using free().
  * @param[in]   app_context  The application context
@@ -78,7 +78,6 @@ int app_context_destroy(app_context_h app_context);
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_DB_FAILED          Database error occurred
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  */
 int app_context_get_package(app_context_h app_context, char **package);
@@ -86,7 +85,7 @@ int app_context_get_package(app_context_h app_context, char **package);
 
 /**
  * @brief    Gets the application ID with the given application context.
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @remarks     You must release @a app_id using free().
  * @param[in]   app_context  The application context
  * @param[out]  app_id       The application ID of the given application context
@@ -94,7 +93,6 @@ int app_context_get_package(app_context_h app_context, char **package);
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_DB_FAILED          Database error occurred
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  */
 int app_context_get_app_id(app_context_h app_context, char **app_id);
@@ -102,22 +100,20 @@ int app_context_get_app_id(app_context_h app_context, char **app_id);
 
 /**
  * @brief  Gets the process ID with the given application context.
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[in]   app_context  The application context
  * @param[out]  pid          The process ID of the given application context
  * @return      @c 0 on success,
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_DB_FAILED          Database error occurred
- * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  */
 int app_context_get_pid(app_context_h app_context, pid_t *pid);
 
 
 /**
  * @brief  Checks whether the application with the given application context is terminated.
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[in]   app_context  The application context
  * @param[out]  terminated   @c true if the application is terminated, \n
  *                           otherwise @c false if the application is running
@@ -125,15 +121,13 @@ int app_context_get_pid(app_context_h app_context, pid_t *pid);
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_DB_FAILED          Database error occurred
- * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  */
 int app_context_is_terminated(app_context_h app_context, bool *terminated);
 
 
 /**
  * @brief  Checks whether two application contexts are equal.
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[in]   lhs    The first application context to compare
  * @param[in]   rhs    The second application context to compare
  * @param[out]  equal  @c true if the application contexts are equal, \n
@@ -142,22 +136,19 @@ int app_context_is_terminated(app_context_h app_context, bool *terminated);
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_DB_FAILED          Database error occurred
- * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  */
 int app_context_is_equal(app_context_h lhs, app_context_h rhs, bool *equal);
 
 
 /**
  * @brief  Clones the application context handle.
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[out]  clone        The newly created application context handle, if cloning is successful
  * @param[in]   app_context  The application context
  * @return      @c 0 on success,
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_DB_FAILED          Database error occurred
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  */
 int app_context_clone(app_context_h *clone, app_context_h app_context);

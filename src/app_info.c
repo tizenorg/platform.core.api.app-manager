@@ -341,8 +341,7 @@ API int app_info_get_localed_label(const char *app_id, const char *locale, char 
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
 
-	pkgmgrinfo_appinfo_get_localed_label(app_id, locale, &val);
-	if (val == NULL)
+	if (pkgmgrinfo_appinfo_usr_get_localed_label(app_id, locale, getuid(), &val))
 	{
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
