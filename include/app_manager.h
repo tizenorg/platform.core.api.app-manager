@@ -236,22 +236,6 @@ int app_manager_request_terminate_bg_app(app_context_h app_context);
  */
 int app_manager_open_app(const char *app_id);
 
-/* FIXME: should be separated */
-/**
- * @brief  Terminates the application.
- * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel platform
- * @privilege %http://tizen.org/privilege/appmanager.kill
- * @param[in]   app_context  The application context
- * @return      @c 0 on success,
- *              otherwise a negative error value
- * @retval  #APP_MANAGER_ERROR_NONE               Successful
- * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_REQUEST_FAILED     Internal terminate error
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
- */
-int app_manager_terminate_app(app_context_h app_context);
-
 /**
  * @brief  Retrieves all installed applications information.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
