@@ -50,6 +50,7 @@ rm -rf %{buildroot}
 %{_libdir}/libcapi-appfw-app-manager.so.*
 %{_bindir}/appmgr_tool
 %manifest %{name}.manifest
+%license LICENSE
 
 %files devel
 %{_includedir}/appfw/*.h
