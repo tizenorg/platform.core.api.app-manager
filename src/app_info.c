@@ -692,7 +692,7 @@ API int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filte
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
 
-	retval = pkgmgrinfo_appinfo_filter_foreach_appinfo(handle->pkg_app_info_filter, app_info_foreach_app_filter_cb, &foreach_context);
+	retval = pkgmgrinfo_appinfo_usr_filter_foreach_appinfo(handle->pkg_app_info_filter, app_info_foreach_app_filter_cb, &foreach_context, getuid());
 	if (retval < 0)
 	{
 		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
@@ -787,7 +787,7 @@ API int app_info_metadata_filter_foreach(app_info_metadata_filter_h handle, app_
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
 
-	retval = pkgmgrinfo_appinfo_metadata_filter_foreach(handle->pkg_app_info_metadata_filter, app_info_foreach_app_filter_cb, &foreach_context);
+	retval = pkgmgrinfo_appinfo_usr_metadata_filter_foreach(handle->pkg_app_info_metadata_filter, app_info_foreach_app_filter_cb, &foreach_context, getuid());
 	if (retval < 0)
 	{
 		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
