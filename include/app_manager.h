@@ -206,7 +206,7 @@ int app_manager_resume_app(app_context_h app_context);
  *         UI applications that are in paused state or some service applications could be required to terminate by this API.
  * @since_tizen 2.4
  * @privlevel public
- * @privilege %http://tizen.org/privilege/appmanager.bgkill
+ * @privilege %http://tizen.org/privilege/appmanager.kill.bgapp
  * @remarks This function returns after it just sends a request for terminating a background application.\n
  *          Platform will decide if the target application could be terminated or not according to the state of the target application.
  * @param[in]   app_context  The application context
