@@ -449,6 +449,7 @@ int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *us
 
 		if (event_cb_context == NULL)
 		{
+			app_context_unlock_event_cb_context();
 			return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
 		}
 
@@ -456,6 +457,7 @@ int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *us
 
 		if (event_cb_context->pid_table == NULL)
 		{
+			app_context_unlock_event_cb_context();
 			return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "failed to initialize pid-table");
 		}
 
