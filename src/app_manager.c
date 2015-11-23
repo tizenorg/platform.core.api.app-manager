@@ -260,17 +260,16 @@ API int app_manager_terminate_app(app_context_h app_context)
 
 API int app_manager_request_terminate_bg_app(app_context_h app_context)
 {
-#if 0
 	int retval = APP_MANAGER_ERROR_NONE;
 	pid_t pid = 0;
-#endif
+
 	if (app_context == NULL)
 	{
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	}
-	/* TODO: implement aul_terminate_bgapp_pid */
-#if 0
-	if (app_context_get_pid(app_context, &pid) != APP_MANAGER_ERROR_NONE) {
+
+	if (app_context_get_pid(app_context, &pid) != APP_MANAGER_ERROR_NONE)
+	{
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, "failed to get the process ID");
 	}
 
@@ -289,7 +288,7 @@ API int app_manager_request_terminate_bg_app(app_context_h app_context)
 	{
 		return APP_MANAGER_ERROR_REQUEST_FAILED;
 	}
-#endif
+
 	return APP_MANAGER_ERROR_NONE;
 }
 
