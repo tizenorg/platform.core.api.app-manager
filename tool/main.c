@@ -69,9 +69,8 @@ static int _get_appinfo(const char *app_id)
 	fprintf(stderr, "type    = [%s]\n", type);
 
 	ret = app_info_destroy(app_info);
-	if (ret != APP_MANAGER_ERROR_NONE) {
+	if (ret != APP_MANAGER_ERROR_NONE)
 		return APP_MANAGER_ERROR_IO_ERROR;
-	}
 
 	free(appid);
 	free(label);
@@ -88,15 +87,13 @@ int main(int argc, char** argv)
 
 	if (2 == argc) {
 		ret = _get_appinfo(argv[1]);
-	}
-	else {
+	} else {
 		_print_help(argv[0]);
 		return EXIT_FAILURE;
 	}
 
-	if (ret != APP_MANAGER_ERROR_NONE) {
+	if (ret != APP_MANAGER_ERROR_NONE)
 		fprintf(stderr, "There are some problems\n");
-	}
 
 	return EXIT_SUCCESS;
 }
