@@ -40,8 +40,6 @@
 
 static int app_context_create(const char *app_id, pid_t pid, app_context_h *app_context);
 
-static int app_context_get_app_context_by_pid(pid_t pid, app_context_h *app_context);
-
 struct app_context_s {
 	char *app_id;
 	pid_t pid;
@@ -132,25 +130,6 @@ int app_context_get_app_context(const char *app_id, app_context_h *app_context)
 		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
 
 	return app_context_create(retrieval_context.app_id, retrieval_context.pid, app_context);
-}
-
-static int app_context_get_app_context_by_pid(pid_t pid, app_context_h *app_context)
-{
-	int retval;
-	char appid[APPID_MAX] = {0, };
-
-	if (pid < 0 || app_context == NULL)
-		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
-
-	if (aul_app_get_appid_bypid(pid, appid, sizeof(appid)) != AUL_R_OK)
-		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
-
-	retval = app_context_get_app_context(appid, app_context);
-
-	if (retval != APP_MANAGER_ERROR_NONE)
-		return app_manager_error(retval, __FUNCTION__, NULL);
-
-	return APP_MANAGER_ERROR_NONE;
 }
 
 static int app_context_create(const char *app_id, pid_t pid, app_context_h *app_context)
@@ -320,13 +299,13 @@ static void app_context_pid_table_entry_destroyed_cb(void * data)
 	}
 }
 
-static int app_context_launched_event_cb(pid_t pid, void *data)
+static int app_context_launched_event_cb(pid_t pid, const char *app_id, void *data)
 {
 	app_context_h app_context = NULL;
 
 	app_context_lock_event_cb_context();
 
-	if (app_context_get_app_context_by_pid(pid, &app_context) == APP_MANAGER_ERROR_NONE) {
+	if (app_context_create(app_id, pid, &app_context) == APP_MANAGER_ERROR_NONE) {
 		if (event_cb_context != NULL && event_cb_context->pid_table != NULL) {
 			g_hash_table_insert(event_cb_context->pid_table, GINT_TO_POINTER(&(app_context->pid)), app_context);
 			event_cb_context->callback(app_context, APP_CONTEXT_EVENT_LAUNCHED, event_cb_context->user_data);
@@ -390,7 +369,7 @@ int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *us
 		app_context_foreach_app_context(app_context_load_all_app_context_cb_locked, NULL);
 
 		aul_listen_app_dead_signal(app_context_terminated_event_cb, NULL);
-		aul_listen_app_launch_signal(app_context_launched_event_cb, NULL);
+		aul_listen_app_launch_signal_v2(app_context_launched_event_cb, NULL);
 
 	}
 
