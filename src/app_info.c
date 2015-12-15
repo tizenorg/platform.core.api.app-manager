@@ -99,6 +99,7 @@ static int app_info_foreach_app_filter_cb(pkgmgrinfo_appinfo_h handle, void *use
 	int retval = 0;
 	char *appid = NULL;
 	app_info_h info = NULL;
+	bool iteration_next = true;
 
 	info = calloc(1, sizeof(struct app_info_s));
 	if (info == NULL)
@@ -117,23 +118,46 @@ static int app_info_foreach_app_filter_cb(pkgmgrinfo_appinfo_h handle, void *use
 	}
 
 	info->app_id = strdup(appid);
+	if (info->app_id == NULL) {
+		if(info){
+			free(info);
+			info = NULL;
+		}
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
 	info->pkg_app_info = handle;
 
-	foreach_context->callback(info, foreach_context->user_data);
+	iteration_next = foreach_context->callback(info, foreach_context->user_data);
 
-	return APP_MANAGER_ERROR_NONE;
+	if (info->app_id) {
+		free(info->app_id);
+		info->app_id = NULL;
+	}
+
+	if (info) {
+		free(info);
+		info = NULL;
+	}
+
+	if (iteration_next == true)
+		return PMINFO_R_OK;
+	else
+		return PMINFO_R_ERROR;
 }
 
 static int app_info_foreach_app_metadata_cb(const char *metadata_key, const char *metadata_value, void *user_data)
 {
 	foreach_metadata_context_s *foreach_context = user_data;
+	bool iteration_next = true;
 
 	if (metadata_value == NULL || foreach_context == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
 
-	foreach_context->callback(metadata_key, metadata_value, foreach_context->user_data);
-
-	return APP_MANAGER_ERROR_NONE;
+	iteration_next = foreach_context->callback(metadata_key, metadata_value, foreach_context->user_data);
+	if (iteration_next == true)
+		return PMINFO_R_OK;
+	else
+		return PMINFO_R_ERROR;
 }
 
 static int app_info_foreach_app_info_cb(pkgmgrinfo_appinfo_h handle, void *cb_data)
@@ -244,9 +268,12 @@ API int app_info_destroy(app_info_h app_info)
 
 API int app_info_get_app_id(app_info_h app_info, char **app_id)
 {
-	char *app_id_dup;
+	char *app_id_dup = NULL;
 
 	if (app_info == NULL || app_id == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+
+	if (app_info->app_id == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_id_dup = strdup(app_info->app_id);
@@ -260,14 +287,15 @@ API int app_info_get_app_id(app_info_h app_info, char **app_id)
 
 API int app_info_get_exec(app_info_h app_info, char **exec)
 {
-	char *val;
-	char *app_exec_dup;
+	char *val = NULL;
+	char *app_exec_dup = NULL;
+	int ret = -1;
 
 	if (app_info == NULL || exec == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	pkgmgrinfo_appinfo_get_exec(app_info->pkg_app_info, &val);
-	if (val == NULL)
+	ret = pkgmgrinfo_appinfo_get_exec(app_info->pkg_app_info, &val);
+	if (ret != PMINFO_R_OK || val == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_exec_dup = strdup(val);
@@ -281,14 +309,15 @@ API int app_info_get_exec(app_info_h app_info, char **exec)
 
 API int app_info_get_label(app_info_h app_info, char **label)
 {
-	char *val;
-	char *app_label_dup;
+	char *val = NULL;
+	char *app_label_dup = NULL;
+	int ret = 0;
 
 	if (app_info == NULL || label == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	pkgmgrinfo_appinfo_get_label(app_info->pkg_app_info, &val);
-	if (val == NULL)
+	ret = pkgmgrinfo_appinfo_get_label(app_info->pkg_app_info, &val);
+	if (ret < 0 || val == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_label_dup = strdup(val);
@@ -302,8 +331,8 @@ API int app_info_get_label(app_info_h app_info, char **label)
 
 API int app_info_get_localed_label(const char *app_id, const char *locale, char **label)
 {
-	char *val;
-	char *app_label_dup;
+	char *val = NULL;
+	char *app_label_dup = NULL;
 
 	if (app_id == NULL || locale == NULL || label == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
@@ -312,8 +341,13 @@ API int app_info_get_localed_label(const char *app_id, const char *locale, char 
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_label_dup = strdup(val);
-	if (app_label_dup == NULL)
+	if (app_label_dup == NULL) {
+		if (val) {
+			free(val);
+			val = NULL;
+		}
 		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
 
 	*label = app_label_dup;
 	free(val);
@@ -323,14 +357,15 @@ API int app_info_get_localed_label(const char *app_id, const char *locale, char 
 
 API int app_info_get_icon(app_info_h app_info, char **path)
 {
-	char *val;
-	char *app_icon_dup;
+	char *val = NULL;
+	char *app_icon_dup = NULL;
+	int ret = -1;
 
 	if (app_info == NULL || path == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	pkgmgrinfo_appinfo_get_icon(app_info->pkg_app_info, &val);
-	if (val == NULL)
+	ret = pkgmgrinfo_appinfo_get_icon(app_info->pkg_app_info, &val);
+	if (ret != PMINFO_R_OK || val == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_icon_dup = strdup(val);
@@ -344,13 +379,18 @@ API int app_info_get_icon(app_info_h app_info, char **path)
 
 API int app_info_get_package(app_info_h app_info, char **package)
 {
-	char *val;
-	char *app_package_dup;
+	char *val = NULL;
+	char *app_package_dup = NULL;
+	int ret = 0;
 
 	if (app_info == NULL || package == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	pkgmgrinfo_appinfo_get_pkgname(app_info->pkg_app_info, &val);
+	ret = pkgmgrinfo_appinfo_get_pkgname(app_info->pkg_app_info, &val);
+	if (ret < 0)
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	if (val == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_package_dup = strdup(val);
 	if (app_package_dup == NULL)
@@ -363,13 +403,18 @@ API int app_info_get_package(app_info_h app_info, char **package)
 
 API int app_info_get_type(app_info_h app_info, char **type)
 {
-	char *val;
-	char *app_type_dup;
+	char *val = NULL;
+	char *app_type_dup = NULL;
+	int ret = 0;
 
 	if (app_info == NULL || type == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	pkgmgrinfo_appinfo_get_apptype(app_info->pkg_app_info, &val);
+	ret = pkgmgrinfo_appinfo_get_apptype(app_info->pkg_app_info, &val);
+	if (ret < 0)
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	if (val == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_type_dup = strdup(val);
 	if (app_type_dup == NULL)

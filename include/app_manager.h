@@ -55,9 +55,8 @@ typedef enum
 } app_manager_error_e;
 
 /**
- * @internal
  * @brief  Called when an application is launched or terminated.
- * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ * @since_tizen 2.4
  * @param[in]   app_context  The application context of the application launched or terminated
  * @param[in]   event        The application context event
  * @param[in]   user_data    The user data passed from the foreach function
@@ -219,23 +218,6 @@ int app_manager_resume_app(app_context_h app_context);
  */
 int app_manager_request_terminate_bg_app(app_context_h app_context);
 
-/* FIXME: should be separated */
-/**
- * @brief  Opens the application.
- * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/appmanager.launch
- * @param[in]   app_id  The ID of the application
- * @return      @c 0 on success,
- *              otherwise a negative error value
- * @retval  #APP_MANAGER_ERROR_NONE               Successful
- * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
- * @retval  #APP_MANAGER_ERROR_REQUEST_FAILED     Internal open error
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
- */
-int app_manager_open_app(const char *app_id);
-
 /**
  * @brief  Retrieves all installed applications information.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
@@ -330,11 +312,13 @@ int app_manager_get_shared_resource_path(const char *app_id, char **path);
 int app_manager_get_shared_trusted_path(const char *app_id, char **path);
 
 /**
+ * @deprecated Deprecated since 2.4.
  * @brief  Gets the absolute path to the shared data directory of the application specified
  *         with an application ID.
  * @details     An application can only read the files of other application's shared data directory.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @remarks     The specified @a path should be released.
+ * @remarks     To access the path returned by this function may not work as intended in certain devices due to some implementation issues.
  *
  * @param[in]      app_id  The ID of the application
  * @param[in,out]  path    The absolute path to the shared data directory of the application
