@@ -33,13 +33,34 @@ extern "C" {
 * @{
 */
 
-/** @brief  Definition for string property for filtering based on app info. */
+/**
+ * @brief  Definition for string property for filtering based on app info: String property for filtering packages with app id
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ */
 #define  PACKAGE_INFO_PROP_APP_ID            "PACKAGE_INFO_PROP_APP_ID"
+
+/**
+ * @brief  Definition for string property for filtering based on app info: String property for filtering packages with app type
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ */
 #define  PACKAGE_INFO_PROP_APP_TYPE          "PACKAGE_INFO_PROP_APP_TYPE"
+
+/**
+ * @brief  Definition for string property for filtering based on app info: String property for filtering packages with app category
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ */
 #define  PACKAGE_INFO_PROP_APP_CATEGORY      "PACKAGE_INFO_PROP_APP_CATEGORY"
 
-/** @brief Definition for boolean property for filtering based on app info. */
+/**
+ * @brief Definition for boolean property for filtering based on app info: Boolean property for filtering whether the package is nodisplay or not based on package info
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ */
 #define	PACKAGE_INFO_PROP_APP_NODISPLAY     "PACKAGE_INFO_PROP_APP_NODISPLAY"
+
+/**
+ * @brief Definition for boolean property for filtering based on app info: Boolean property for filtering whether the package has the authority to manage task or not based on package info
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
+ */
 #define	PACKAGE_INFO_PROP_APP_TASKMANAGE    "PACKAGE_INFO_PROP_APP_TASKMANAGE"
 
 /**

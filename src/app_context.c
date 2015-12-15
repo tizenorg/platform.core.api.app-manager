@@ -287,21 +287,16 @@ static void app_context_pid_table_entry_destroyed_cb(void * data)
 {
 	app_context_h app_context = data;
 
-	if (app_context != NULL) {
-		char *app_id;
-		int pid;
-		app_context_get_app_id(app_context, &app_id);
-		app_context_get_pid(app_context, &pid);
-		SECURE_LOGI("[%s] app_id(%s), pid(%d)", __FUNCTION__, app_context->app_id, app_context->pid);
-		free(app_id);
-
+	if (app_context != NULL)
 		app_context_destroy(app_context);
-	}
 }
 
 static int app_context_launched_event_cb(pid_t pid, const char *app_id, void *data)
 {
 	app_context_h app_context = NULL;
+
+	if (pid < 0 || app_id == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_context_lock_event_cb_context();
 
