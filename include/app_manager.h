@@ -254,11 +254,19 @@ int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_da
 int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
 
 /**
+ * @deprecated Deprecated since 3.0.
  * @brief  Gets the absolute path to the shared data directory of the application specified
  *         with an application ID.
  * @details     An application can only read the files of other application's shared data directory.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @remarks     The specified @a path should be released.
+ * @remarks	shared/data directory is deprecated since Tizen 3.0.
+ *		You should not use this API when you develop new application.
+ *		Actually, we strongly recommend to stop using shared/data path for all your previous applications.
+ *		Files in shared/data directory can be read by all other applications.
+ *		You cannot control what applications can read the files in shared/data directory.
+ *		If you want to share files with other applications, consider passing path via app_control API.
+ *		app_control API supports giving permission to other applications by passing path via app_control.
  *
  * @param[in]      app_id  The ID of the application
  * @param[in,out]  path    The absolute path to the shared data directory of the application
