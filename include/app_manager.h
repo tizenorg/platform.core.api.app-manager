@@ -254,6 +254,7 @@ int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_da
 int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
 
 /**
+ * @deprecated Deprecated since 3.0.
  * @brief  Gets the absolute path to the shared data directory of the application specified
  *         with an application ID.
  * @details     An application can only read the files of other application's shared data directory.
