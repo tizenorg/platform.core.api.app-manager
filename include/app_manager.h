@@ -39,19 +39,18 @@ extern "C" {
  * @brief Enumerations for Application Manager Error .
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
-typedef enum
-{
-    APP_MANAGER_ERROR_NONE = TIZEN_ERROR_NONE, /**< Successful */
-    APP_MANAGER_ERROR_INVALID_PARAMETER = TIZEN_ERROR_INVALID_PARAMETER, /**< Invalid parameter */
-    APP_MANAGER_ERROR_OUT_OF_MEMORY = TIZEN_ERROR_OUT_OF_MEMORY, /**< Out of memory */
-    APP_MANAGER_ERROR_IO_ERROR = TIZEN_ERROR_IO_ERROR, /**< Internal I/O error */
-    APP_MANAGER_ERROR_NO_SUCH_APP = TIZEN_ERROR_APPLICATION_MANAGER | 0x01, /**< No such application */
-
-    APP_MANAGER_ERROR_DB_FAILED = TIZEN_ERROR_APPLICATION_MANAGER | 0x03, /**< Database error  */
-    APP_MANAGER_ERROR_INVALID_PACKAGE = TIZEN_ERROR_APPLICATION_MANAGER | 0x04, /**< Invalid package name */
-    APP_MANAGER_ERROR_APP_NO_RUNNING = TIZEN_ERROR_APPLICATION_MANAGER | 0x05, /**< App is not running */
-    APP_MANAGER_ERROR_REQUEST_FAILED = TIZEN_ERROR_APPLICATION_MANAGER | 0x06, /**< Internal aul request error */
-    APP_MANAGER_ERROR_PERMISSION_DENIED = TIZEN_ERROR_PERMISSION_DENIED /**< Permission denied */
+typedef enum {
+	APP_MANAGER_ERROR_NONE = TIZEN_ERROR_NONE, /**< Successful */
+	APP_MANAGER_ERROR_INVALID_PARAMETER = TIZEN_ERROR_INVALID_PARAMETER, /**< Invalid parameter */
+	APP_MANAGER_ERROR_OUT_OF_MEMORY = TIZEN_ERROR_OUT_OF_MEMORY, /**< Out of memory */
+	APP_MANAGER_ERROR_IO_ERROR = TIZEN_ERROR_IO_ERROR, /**< Internal I/O error */
+	APP_MANAGER_ERROR_NO_SUCH_APP = TIZEN_ERROR_APPLICATION_MANAGER | 0x01, /**< No such application */
+	APP_MANAGER_ERROR_DB_FAILED = TIZEN_ERROR_APPLICATION_MANAGER | 0x03, /**< Database error  */
+	APP_MANAGER_ERROR_INVALID_PACKAGE = TIZEN_ERROR_APPLICATION_MANAGER | 0x04, /**< Invalid package name */
+	APP_MANAGER_ERROR_APP_NO_RUNNING = TIZEN_ERROR_APPLICATION_MANAGER | 0x05, /**< App is not running */
+	APP_MANAGER_ERROR_REQUEST_FAILED = TIZEN_ERROR_APPLICATION_MANAGER | 0x06, /**< Internal aul request error */
+	APP_MANAGER_ERROR_PERMISSION_DENIED = TIZEN_ERROR_PERMISSION_DENIED, /**< Permission denied */
+	APP_MANAGER_ERROR_NOT_SUPPORTED = TIZEN_ERROR_NOT_SUPPORTED /**< Not supported *(Since 3.0)* */
 } app_manager_error_e;
 
 /**
@@ -254,11 +253,24 @@ int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_da
 int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
 
 /**
+ * @deprecated Deprecated since 3.0.
  * @brief  Gets the absolute path to the shared data directory of the application specified
  *         with an application ID.
  * @details     An application can only read the files of other application's shared data directory.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @remarks     The specified @a path should be released.
+ * @remarks     The specified @a path should be released. @n
+ *		shared/data directory is not supported since Tizen 3.0.
+ *		You MUST NOT use this API when you develop new application.
+ *		Actually, we strongly recommend to stop using shared/data path for all your previous applications.
+ *		Files in shared/data directory can be read by all other applications.
+ *		You cannot control what applications can read the files in shared/data directory.
+ *		If you want to share files with other applications, consider passing path via @ref CAPI_APP_CONTROL_MODULE API.
+ *		The @ref CAPI_APP_CONTROL_MODULE API supports giving permission to other applications by passing path via app_control. @n
+ *		shared/data directory is only available for applications with api-version lower than 3.0 from Tizen 3.0 platform.
+ *		The applications with api-version from 3.0 cannot access other applications' shared/data directory.
+ *		For example, a Tizen 2.4 application can access another Tizen 2.4 application's shared/data directory as it did in Tizen 2.4 platform.
+ *		However, a Tizen 3.0 application cannot access another application's shared/data directory even the another application is Tizen 2.4 application.
+ *		Note that Tizen 3.0 platform only supports share/data directory among applications with api-version lower than 3.0 for minimum backward compatibility.
  *
  * @param[in]      app_id  The ID of the application
  * @param[in,out]  path    The absolute path to the shared data directory of the application
@@ -269,6 +281,7 @@ int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ * @retval  #APP_MANAGER_ERROR_NOT_SUPPORTED	  Not supported
  */
 int app_manager_get_shared_data_path(const char *app_id, char **path);
 
