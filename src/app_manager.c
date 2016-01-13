@@ -50,6 +50,8 @@ static const char* app_manager_error_to_string(app_manager_error_e error)
 		return "DB error";
 	case APP_MANAGER_ERROR_INVALID_PACKAGE:
 		return "Invalid package";
+	case APP_MANAGER_ERROR_NOT_SUPPORTED:
+		return "Not supported";
 	default:
 		return "Unknown";
 	}
@@ -262,6 +264,9 @@ API int app_manager_get_shared_data_path(const char *app_id, char **path)
 		break;
 	case AUL_R_ERROR:
 		r = app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		break;
+	case AUL_R_EREJECTED:
+		r = app_manager_error(APP_MANAGER_ERROR_NOT_SUPPORTED, __FUNCTION__, NULL);
 		break;
 	default:
 		r = app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED, __FUNCTION__, NULL);
