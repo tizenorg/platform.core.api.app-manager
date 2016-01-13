@@ -40,6 +40,8 @@ int app_manager_error(app_manager_error_e error, const char* function, const cha
 
 int app_context_foreach_app_context(app_manager_app_context_cb callback, void *user_data);
 
+int app_context_foreach_all_app_context(app_manager_app_context_cb callback, void *user_data);
+
 int app_context_get_app_context(const char *app_id, app_context_h *app_context);
 
 int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *user_data);

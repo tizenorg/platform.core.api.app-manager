@@ -54,6 +54,19 @@ typedef enum
 
 
 /**
+ * @brief
+ * @since_tizen 3.0
+ */
+typedef enum {
+    APP_STATE_UNKNOWN,
+    APP_STATE_FOREGROUND,
+    APP_STATE_BACKGROUND,
+    APP_STATE_SERVICE,
+    APP_STATE_TERMINATED,
+} app_state_e;
+
+
+/**
  * @brief  Destroys the application context handle and releases all its resources.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[in]   app_context  The application context handle
@@ -112,6 +125,33 @@ int app_context_get_pid(app_context_h app_context, pid_t *pid);
 
 
 /**
+ * @brief
+ * @since_tizen 3.0
+ * @remarks     You must release @a pkg_id using free().
+ * @param[in]   app_context  The application context
+ * @param[out]
+ * @return      @c 0 on success,
+ *              otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ */
+int app_context_get_pkg_id(app_context_h app_context, char **pkg_id);
+
+
+/**
+ * @brief
+ * @since_tizen 3.0
+ * @param[in]   app_context  The application context
+ * @param[out]
+ * @return      @c 0 on success,
+ *              otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ */
+int app_context_get_app_state(app_context_h app_context, app_state_e *state);
+
+
+/**
  * @brief  Checks whether the application with the given application context is terminated.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[in]   app_context  The application context
@@ -139,6 +179,19 @@ int app_context_is_terminated(app_context_h app_context, bool *terminated);
  */
 int app_context_is_equal(app_context_h lhs, app_context_h rhs, bool *equal);
 
+
+/**
+ * @brief
+ * @since_tizen 3.0
+ * @param[in]   app_context  The application context
+ * @param[out]
+ * @return      @c 0 on success,
+ *              otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_IO_ERROR           I/O error
+ */
+int app_context_is_sub_app(app_context_h app_context, bool *is_sub_app);
 
 /**
  * @brief  Clones the application context handle.
