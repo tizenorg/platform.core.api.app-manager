@@ -32,6 +32,7 @@
 
 #define LOG_TAG "CAPI_APPFW_APP_MANAGER"
 
+#define APPID_MAX 128
 
 static const char* app_manager_error_to_string(app_manager_error_e error)
 {
@@ -90,6 +91,16 @@ API int app_manager_foreach_app_context(app_manager_app_context_cb callback, voi
 		return APP_MANAGER_ERROR_NONE;
 }
 
+API int app_manager_foreach_running_app_context(app_manager_app_context_cb callback, void *user_data)
+{
+	int retval = app_context_foreach_running_app_context(callback, user_data);
+
+	if (retval != APP_MANAGER_ERROR_NONE)
+		return app_manager_error(retval, __FUNCTION__, NULL);
+	else
+		return APP_MANAGER_ERROR_NONE;
+}
+
 API int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
 {
 	int retval = app_context_get_app_context(app_id, app_context);
@@ -102,28 +113,27 @@ API int app_manager_get_app_context(const char *app_id, app_context_h *app_conte
 
 API int app_manager_resume_app(app_context_h app_context)
 {
-	char *app_id;
+	char app_id[APPID_MAX] = {0,};
 	int retval = APP_MANAGER_ERROR_NONE;
+	int pid, lpid;
 
 	if (app_context == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	if (app_context_get_app_id(app_context, &app_id) != APP_MANAGER_ERROR_NONE)
+	if (app_context_get_pid(app_context, &pid) != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, "failed to get the application ID");
 
-	if (aul_app_is_running(app_id) == 0) {
-		if (app_id) {
-			free(app_id);
-			app_id = NULL;
-		}
+	lpid = aul_app_group_get_leader_pid(pid);
+	if (lpid < 1)
+		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "fail to get leader pid");
+
+	if (aul_app_get_appid_bypid(lpid, app_id, sizeof(app_id)) < 0)
+		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "fail to get app id");
+
+	if (aul_app_is_running(app_id) == 0)
 		return app_manager_error(APP_MANAGER_ERROR_APP_NO_RUNNING, __FUNCTION__, NULL);
-	}
 
 	retval = aul_resume_app(app_id);
-
-	if (app_id)
-		free(app_id);
-
 	if (retval == AUL_R_EINVAL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 	else if (retval == AUL_R_EILLACC)
