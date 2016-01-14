@@ -60,6 +60,33 @@
  * @remarks The @ref CAPI_APP_INFO_MODULE API provides two types of functionality:
  * - Provides installed application's information such as name, type, icon path, and exec path.
  * - Supports filtering
+ * <table>
+ * <tr>
+ * <th>Property for filtering</th>
+ * <th>Type</th>
+ * </tr>
+ * <tr>
+ * <td>PACKAGE_INFO_PROP_APP_ID</td>
+ * <td>String</td>
+ * </tr>
+ * <tr>
+ * <td>PACKAGE_INFO_PROP_APP_TYPE</td>
+ * <td>String</td>
+ * </tr>
+ * <tr>
+ * <td>PACKAGE_INFO_PROP_APP_CATEGORY</td>
+ * <td>String</td>
+ * </tr>
+ * <tr>
+ * <td>PACKAGE_INFO_PROP_APP_NODISPLAY</td>
+ * <td>Boolean</td>
+ * </tr>
+ * <tr>
+ * <td>PACKAGE_INFO_PROP_APP_TASKMANAGE</td>
+ * <td>Boolean</td>
+ * </tr>
+ * </table>
+
  */
 
 #endif /* __TIZEN_APPFW_APP_MANAGER_DOC_H__ */
