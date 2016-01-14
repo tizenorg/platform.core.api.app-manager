@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 
+#define APPID_MAX 128
+
 /**
  * @file app_manager_internal.h
  */
@@ -39,6 +41,8 @@ extern "C" {
 int app_manager_error(app_manager_error_e error, const char* function, const char *description);
 
 int app_context_foreach_app_context(app_manager_app_context_cb callback, void *user_data);
+
+int app_context_foreach_running_app_context(app_manager_app_context_cb callback, void *user_data);
 
 int app_context_get_app_context(const char *app_id, app_context_h *app_context);
 
