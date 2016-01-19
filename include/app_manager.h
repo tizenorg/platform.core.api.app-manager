@@ -134,6 +134,26 @@ void app_manager_unset_app_context_event_cb(void);
  */
 int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *user_data);
 
+
+/**
+ * @brief  Retrieves all application contexts of running applications.
+ * @details If there is the application launched with the application group, this api will return the contexts of the sub application.
+ * @since_tizen 3.0
+ * @privlevel platform
+ * @privilege %http://tizen.org/privilege/appmanager.admin
+ * @param[in]   callback   The callback function to invoke
+ * @param[in]   user_data  The user data to be passed to the callback function
+ * @return      @c 0 on success,
+ *              otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
+ * @post   This function invokes app_manager_app_context_cb() for each application context.
+ * @see app_manager_app_context_cb()
+ */
+int app_manager_foreach_running_app_context(app_manager_app_context_cb callback, void *user_data);
+
+
 /**
  * @brief  Gets the application context for the given ID of the application.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
