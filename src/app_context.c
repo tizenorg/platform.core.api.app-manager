@@ -38,11 +38,14 @@
 
 #define APPID_MAX 128
 
-static int app_context_create(const char *app_id, pid_t pid, app_context_h *app_context);
+static int app_context_create(const char *app_id, pid_t pid, char *pkg_id, app_state_e app_state, bool is_sub_app, app_context_h *app_context);
 
 struct app_context_s {
 	char *app_id;
 	pid_t pid;
+	char *pkg_id;
+	app_state_e app_state;
+	bool is_sub_app;
 };
 
 typedef struct _foreach_context_ {
@@ -54,12 +57,17 @@ typedef struct _foreach_context_ {
 typedef struct _retrieval_context_ {
 	const char *app_id;
 	pid_t pid;
+	char *pkg_id;
+	app_state_e app_state;
+	bool is_sub_app;
 	bool matched;
 } retrieval_context_s;
 
 static int app_context_foreach_app_context_cb(const aul_app_info *aul_app_context, void *cb_data)
 {
 	foreach_context_s* foreach_context = cb_data;
+	app_context_h app_context;
+	bool is_sub_app = false;
 
 	if (foreach_context == NULL) {
 		app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
@@ -67,9 +75,15 @@ static int app_context_foreach_app_context_cb(const aul_app_info *aul_app_contex
 	}
 
 	if (foreach_context->iteration == true) {
-		app_context_h app_context = NULL;
+		if (aul_app_context->is_sub_app)
+			is_sub_app = true;
 
-		if (app_context_create(aul_app_context->appid, aul_app_context->pid, &app_context) == APP_MANAGER_ERROR_NONE) {
+		if (app_context_create(aul_app_context->appid,
+					aul_app_context->pid,
+					aul_app_context->pkgid,
+					APP_STATE_UNDEFINED,
+					is_sub_app,
+					&app_context) == APP_MANAGER_ERROR_NONE) {
 			foreach_context->iteration = foreach_context->callback(app_context, foreach_context->user_data);
 			app_context_destroy(app_context);
 		}
@@ -95,6 +109,73 @@ int app_context_foreach_app_context(app_manager_app_context_cb callback, void *u
 	return APP_MANAGER_ERROR_NONE;
 }
 
+static int app_context_foreach_running_app_context_cb(const aul_app_info *aul_app_context, void *cb_data)
+{
+	foreach_context_s* foreach_context = cb_data;
+	app_context_h app_context;
+	app_state_e app_state;
+	bool is_sub_app = false;
+
+	if (foreach_context == NULL) {
+		app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+		return 0;
+	}
+
+	if (foreach_context->iteration == true) {
+		switch (aul_app_context->status) {
+		case STATUS_VISIBLE:
+			app_state = APP_STATE_FOREGROUND;
+			break;
+		case STATUS_LAUNCHING:
+		case STATUS_BG:
+			app_state = APP_STATE_BACKGROUND;
+			break;
+		case STATUS_SERVICE:
+			app_state = APP_STATE_SERVICE;
+			break;
+		default:
+			app_state = APP_STATE_UNDEFINED;
+		}
+
+		if (aul_app_context->is_sub_app)
+			is_sub_app = true;
+
+		if (app_context_create(aul_app_context->appid,
+					aul_app_context->pid,
+					aul_app_context->pkgid,
+					app_state,
+					is_sub_app,
+					&app_context) == APP_MANAGER_ERROR_NONE) {
+			foreach_context->iteration = foreach_context->callback(app_context, foreach_context->user_data);
+			app_context_destroy(app_context);
+		}
+	}
+
+	return 0;
+}
+
+int app_context_foreach_running_app_context(app_manager_app_context_cb callback, void *user_data)
+{
+	int ret;
+	foreach_context_s foreach_context = {
+		.callback = callback,
+		.user_data = user_data,
+		.iteration = true
+	};
+
+	if (callback == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+
+	ret = aul_app_get_all_running_app_info(app_context_foreach_running_app_context_cb, &foreach_context);
+	if (ret != AUL_R_OK) {
+		if (ret == AUL_R_EILLACC)
+			return app_manager_error(APP_MANAGER_ERROR_PERMISSION_DENIED, __FUNCTION__, NULL);
+		else
+			return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
 
 static int app_context_retrieve_app_context(const aul_app_info *aul_app_context, void *cb_data)
 {
@@ -103,6 +184,9 @@ static int app_context_retrieve_app_context(const aul_app_info *aul_app_context,
 	if (aul_app_context != NULL && retrieval_context != NULL && retrieval_context->matched == false) {
 		if (!strcmp(aul_app_context->appid, retrieval_context->app_id)) {
 			retrieval_context->pid = aul_app_context->pid;
+			retrieval_context->pkg_id = aul_app_context->pkgid;
+			if (aul_app_context->is_sub_app)
+				retrieval_context->is_sub_app = true;
 			retrieval_context->matched = true;
 		}
 	}
@@ -115,6 +199,9 @@ int app_context_get_app_context(const char *app_id, app_context_h *app_context)
 	retrieval_context_s retrieval_context =  {
 		.app_id = app_id,
 		.pid = 0,
+		.pkg_id = NULL,
+		.app_state = APP_STATE_UNDEFINED,
+		.is_sub_app = false,
 		.matched = false
 	};
 
@@ -129,10 +216,16 @@ int app_context_get_app_context(const char *app_id, app_context_h *app_context)
 	if (retrieval_context.matched == false)
 		return app_manager_error(APP_MANAGER_ERROR_NO_SUCH_APP, __FUNCTION__, NULL);
 
-	return app_context_create(retrieval_context.app_id, retrieval_context.pid, app_context);
+
+	return app_context_create(retrieval_context.app_id,
+					retrieval_context.pid,
+					retrieval_context.pkg_id,
+					retrieval_context.app_state,
+					retrieval_context.is_sub_app,
+					 app_context);
 }
 
-static int app_context_create(const char *app_id, pid_t pid, app_context_h *app_context)
+static int app_context_create(const char *app_id, pid_t pid, char *pkg_id, app_state_e app_state, bool is_sub_app, app_context_h *app_context)
 {
 	app_context_h app_context_created;
 
@@ -149,7 +242,20 @@ static int app_context_create(const char *app_id, pid_t pid, app_context_h *app_
 		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
 	}
 
+	/* Need to consider little more. */
+	if (pkg_id) {
+		app_context_created->pkg_id = strdup(pkg_id);
+		if (app_context_created->pkg_id == NULL) {
+			free(app_context_created);
+			return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		}
+	} else {
+		app_context_created->pkg_id = NULL;
+	}
+
 	app_context_created->pid = pid;
+	app_context_created->app_state = app_state;
+	app_context_created->is_sub_app = is_sub_app;
 
 	*app_context = app_context_created;
 
@@ -162,6 +268,8 @@ API int app_context_destroy(app_context_h app_context)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	free(app_context->app_id);
+	if (app_context->pkg_id)
+		free(app_context->pkg_id);
 	free(app_context);
 
 	return APP_MANAGER_ERROR_NONE;
@@ -200,6 +308,36 @@ API int app_context_get_pid(app_context_h app_context, pid_t *pid)
 	return APP_MANAGER_ERROR_NONE;
 }
 
+API int app_context_get_package_id(app_context_h app_context, char **pkg_id)
+{
+	char *pkg_id_dup;
+
+	if (app_context == NULL || pkg_id == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+
+	pkg_id_dup = strdup(app_context->pkg_id);
+	if (pkg_id_dup == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+
+	*pkg_id = pkg_id_dup;
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+API int app_context_get_app_state(app_context_h app_context, app_state_e *state)
+{
+	if (app_context == NULL || state == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+
+	/*
+	cynara check with privilege?
+	*/
+
+	*state = app_context->app_state;
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
 API int app_context_is_terminated(app_context_h app_context, bool *terminated)
 {
 	if (app_context == NULL || terminated == NULL)
@@ -232,6 +370,16 @@ API int app_context_is_equal(app_context_h lhs, app_context_h rhs, bool *equal)
 	return APP_MANAGER_ERROR_NONE;
 }
 
+API int app_context_is_sub_app(app_context_h app_context, bool *is_sub_app)
+{
+	if (app_context == NULL || is_sub_app == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+
+	*is_sub_app = app_context->is_sub_app;
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
 API int app_context_clone(app_context_h *clone, app_context_h app_context)
 {
 	int retval;
@@ -239,7 +387,12 @@ API int app_context_clone(app_context_h *clone, app_context_h app_context)
 	if (clone == NULL || app_context == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	retval = app_context_create(app_context->app_id, app_context->pid, clone);
+	retval = app_context_create(app_context->app_id,
+					app_context->pid,
+					app_context->pkg_id,
+					app_context->app_state,
+					app_context->is_sub_app,
+					clone);
 	if (retval != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(retval, __FUNCTION__, NULL);
 
@@ -300,7 +453,7 @@ static int app_context_launched_event_cb(pid_t pid, const char *app_id, void *da
 
 	app_context_lock_event_cb_context();
 
-	if (app_context_create(app_id, pid, &app_context) == APP_MANAGER_ERROR_NONE) {
+	if (app_context_create(app_id, pid, NULL, APP_STATE_UNDEFINED, false, &app_context) == APP_MANAGER_ERROR_NONE) {
 		if (event_cb_context != NULL && event_cb_context->pid_table != NULL) {
 			g_hash_table_insert(event_cb_context->pid_table, GINT_TO_POINTER(&(app_context->pid)), app_context);
 			event_cb_context->callback(app_context, APP_CONTEXT_EVENT_LAUNCHED, event_cb_context->user_data);
