@@ -516,15 +516,28 @@ API int app_info_is_preload(app_info_h app_info, bool *preload)
 
 API int app_info_clone(app_info_h *clone, app_info_h app_info)
 {
-	int retval;
+	app_info_h info;
 
 	if (clone == NULL || app_info == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	retval = app_info_create(app_info->app_id, clone);
+	info = calloc(1, sizeof(struct app_info_s));
+	if (info == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
 
-	if (retval != APP_MANAGER_ERROR_NONE)
-		return app_manager_error(retval, __FUNCTION__, NULL);
+	info->app_id = strdup(app_info->app_id);
+	if (info->app_id == NULL) {
+		free(info);
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
+
+	if (pkgmgrinfo_appinfo_clone_appinfo(app_info->pkg_app_info, &(info->pkg_app_info)) < 0) {
+		free(info->app_id);
+		free(info);
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	}
+
+	*clone = info;
 
 	return APP_MANAGER_ERROR_NONE;
 }
