@@ -92,6 +92,16 @@ API int app_manager_foreach_app_context(app_manager_app_context_cb callback, voi
 		return APP_MANAGER_ERROR_NONE;
 }
 
+API int app_manager_foreach_running_app_context(app_manager_app_context_cb callback, void *user_data)
+{
+	int retval = app_context_foreach_running_app_context(callback, user_data);
+
+	if (retval != APP_MANAGER_ERROR_NONE)
+		return app_manager_error(retval, __FUNCTION__, NULL);
+	else
+		return APP_MANAGER_ERROR_NONE;
+}
+
 API int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
 {
 	int retval = app_context_get_app_context(app_id, app_context);
