@@ -259,11 +259,13 @@ static int app_context_create(const char *app_id, pid_t pid, char *pkg_id, app_s
 		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
 	}
 
-	app_context_created->pkg_id = strdup(pkg_id);
-	if (app_context_created->pkg_id == NULL) {
-		free(app_context_created->app_id);
-		free(app_context_created);
-		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	if (pkg_id != NULL) {
+		app_context_created->pkg_id = strdup(pkg_id);
+		if (app_context_created->pkg_id == NULL) {
+			free(app_context_created->app_id);
+			free(app_context_created);
+			return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		}
 	}
 
 	app_context_created->pid = pid;
@@ -327,11 +329,15 @@ API int app_context_get_package_id(app_context_h app_context, char **pkg_id)
 	if (app_context == NULL || pkg_id == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
-	pkg_id_dup = strdup(app_context->pkg_id);
-	if (pkg_id_dup == NULL)
-		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+	if (app_context->pkg_id != NULL) {
+		pkg_id_dup = strdup(app_context->pkg_id);
+		if (pkg_id_dup == NULL)
+			return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
 
-	*pkg_id = pkg_id_dup;
+		*pkg_id = pkg_id_dup;
+	} else {
+		*pkg_id = NULL;
+	}
 
 	return APP_MANAGER_ERROR_NONE;
 }
