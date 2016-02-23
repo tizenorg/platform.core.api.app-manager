@@ -25,6 +25,7 @@
 
 #include <aul.h>
 #include <dlog.h>
+#include <pkgmgr-info.h>
 
 #include "app_context.h"
 #include "app_manager.h"
@@ -246,7 +247,7 @@ static int app_context_create(const char *app_id, pid_t pid, char *pkg_id, app_s
 {
 	app_context_h app_context_created;
 
-	if (app_id == NULL || pid <= 0 || app_context == NULL)
+	if (app_id == NULL || pid <= 0 || pkg_id == NULL || app_context == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_context_created = calloc(1, sizeof(struct app_context_s));
@@ -452,16 +453,42 @@ static void app_context_pid_table_entry_destroyed_cb(void * data)
 		app_context_destroy(app_context);
 }
 
+static int app_context_get_pkgid_by_appid(const char *app_id, char **pkg_id)
+{
+	pkgmgrinfo_appinfo_h appinfo;
+	char *pkg_id_dup;
+
+	if (app_id == NULL || pkg_id == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+
+	if (pkgmgrinfo_appinfo_get_usr_appinfo(app_id, getuid(), &appinfo) < 0)
+		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "fail to get appinfo");
+
+	if (pkgmgrinfo_appinfo_get_pkgid(appinfo, &pkg_id_dup) < 0) {
+		pkgmgrinfo_appinfo_destroy_appinfo(appinfo);
+		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "fail to get pkgid");
+	}
+
+	*pkg_id = strdup(pkg_id_dup);
+
+	pkgmgrinfo_appinfo_destroy_appinfo(appinfo);
+	return APP_MANAGER_ERROR_NONE;
+}
+
 static int app_context_launched_event_cb(pid_t pid, const char *app_id, void *data)
 {
 	app_context_h app_context = NULL;
+	char *pkg_id = NULL;
 
 	if (pid < 0 || app_id == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
+	if (app_context_get_pkgid_by_appid(app_id, &pkg_id) < 0)
+		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "no such pkg_id");
+
 	app_context_lock_event_cb_context();
 
-	if (app_context_create(app_id, pid, NULL, APP_STATE_UNDEFINED, false, &app_context) == APP_MANAGER_ERROR_NONE) {
+	if (app_context_create(app_id, pid, pkg_id, APP_STATE_UNDEFINED, false, &app_context) == APP_MANAGER_ERROR_NONE) {
 		if (event_cb_context != NULL && event_cb_context->pid_table != NULL) {
 			g_hash_table_insert(event_cb_context->pid_table, GINT_TO_POINTER(&(app_context->pid)), app_context);
 			event_cb_context->callback(app_context, APP_CONTEXT_EVENT_LAUNCHED, event_cb_context->user_data);
@@ -473,6 +500,7 @@ static int app_context_launched_event_cb(pid_t pid, const char *app_id, void *da
 
 	app_context_unlock_event_cb_context();
 
+	free(pkg_id);
 	return 0;
 }
 
