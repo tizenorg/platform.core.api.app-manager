@@ -246,7 +246,7 @@ static int app_context_create(const char *app_id, pid_t pid, char *pkg_id, app_s
 {
 	app_context_h app_context_created;
 
-	if (app_id == NULL || pid <= 0 || app_context == NULL)
+	if (app_id == NULL || pid <= 0 || pkg_id == NULL || app_context == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	app_context_created = calloc(1, sizeof(struct app_context_s));
@@ -455,13 +455,17 @@ static void app_context_pid_table_entry_destroyed_cb(void * data)
 static int app_context_launched_event_cb(pid_t pid, const char *app_id, void *data)
 {
 	app_context_h app_context = NULL;
+	char pkg_id[APPID_MAX] = { 0, };
 
 	if (pid < 0 || app_id == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
+	if (aul_app_get_pkgid_bypid(pid, pkg_id, sizeof(pkg_id) - 1) < 0)
+		return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, "no such pkg_id");
+
 	app_context_lock_event_cb_context();
 
-	if (app_context_create(app_id, pid, NULL, APP_STATE_UNDEFINED, false, &app_context) == APP_MANAGER_ERROR_NONE) {
+	if (app_context_create(app_id, pid, pkg_id, APP_STATE_UNDEFINED, false, &app_context) == APP_MANAGER_ERROR_NONE) {
 		if (event_cb_context != NULL && event_cb_context->pid_table != NULL) {
 			g_hash_table_insert(event_cb_context->pid_table, GINT_TO_POINTER(&(app_context->pid)), app_context);
 			event_cb_context->callback(app_context, APP_CONTEXT_EVENT_LAUNCHED, event_cb_context->user_data);
