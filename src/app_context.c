@@ -532,6 +532,9 @@ int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *us
 	if (callback == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
+	if (app_manager_check_privilege(PRIVILEGE_PKGMGR_INFO) != 0)
+		return app_manager_error(APP_MANAGER_ERROR_PERMISSION_DENIED, __FUNCTION__, NULL);
+
 	app_context_lock_event_cb_context();
 
 	if (event_cb_context == NULL) {
