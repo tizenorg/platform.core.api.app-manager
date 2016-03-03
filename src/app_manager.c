@@ -19,9 +19,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <aul.h>
 #include <dlog.h>
+#include <cynara-client.h>
 
 #include "app_manager.h"
 #include "app_manager_internal.h"
@@ -32,6 +34,7 @@
 
 #define LOG_TAG "CAPI_APPFW_APP_MANAGER"
 
+#define SMACK_LABEL_LEN 255
 
 static const char* app_manager_error_to_string(app_manager_error_e error)
 {
@@ -52,6 +55,8 @@ static const char* app_manager_error_to_string(app_manager_error_e error)
 		return "Invalid package";
 	case APP_MANAGER_ERROR_NOT_SUPPORTED:
 		return "Not supported";
+	case APP_MANAGER_ERROR_PERMISSION_DENIED:
+		return "Permission denied";
 	default:
 		return "Unknown";
 	}
@@ -65,6 +70,67 @@ int app_manager_error(app_manager_error_e error, const char* function, const cha
 		LOGE("[%s] %s(0x%08x)", function, app_manager_error_to_string(error), error);
 
 	return error;
+}
+
+int app_manager_check_privilege(char *privilege)
+{
+	cynara *p_cynara;
+	int fd;
+	int ret;
+
+	char client[SMACK_LABEL_LEN + 1] = "";
+	char uid[10] = {0,};
+	char *client_session = "";
+
+	if (privilege == NULL) {
+		LOGE("invalid parameter");
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+	}
+
+	ret = cynara_initialize(&p_cynara, NULL);
+	if (ret != CYNARA_API_SUCCESS) {
+		LOGE("cynara_initialize [%d] failed!", ret);
+		return APP_MANAGER_ERROR_IO_ERROR;
+	}
+
+	fd = open("/proc/self/attr/current", O_RDONLY);
+	if (fd < 0) {
+		LOGE("open [%d] failed!", errno);
+		ret = APP_MANAGER_ERROR_IO_ERROR;
+		goto out;
+	}
+
+	ret = read(fd, client, SMACK_LABEL_LEN);
+	if (ret < 0) {
+		LOGE("read [%d] failed!", errno);
+		close(fd);
+		ret = APP_MANAGER_ERROR_IO_ERROR;
+		goto out;
+	}
+
+	close(fd);
+
+	snprintf(uid, 10, "%d", getuid());
+
+	ret = cynara_check(p_cynara, client, client_session, uid, privilege);
+	if (ret != CYNARA_API_ACCESS_ALLOWED) {
+		LOGE("cynara access check [%d] failed!", ret);
+
+		if (ret == CYNARA_API_ACCESS_DENIED)
+			ret = APP_MANAGER_ERROR_PERMISSION_DENIED;
+		else
+			ret = APP_MANAGER_ERROR_IO_ERROR;
+
+		goto out;
+	}
+
+	ret = APP_MANAGER_ERROR_NONE;
+
+out:
+	if (p_cynara)
+		cynara_finish(p_cynara);
+
+	return ret;
 }
 
 API int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data)
