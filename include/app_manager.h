@@ -54,6 +54,31 @@ typedef enum {
 } app_manager_error_e;
 
 /**
+ * @brief Enumeration for application event type.
+ * @since_tizen 3.0
+ */
+typedef enum {
+	APP_MANAGER_APP_EVENT_TYPE_ALL = 0x00,               /**< All status */
+	APP_MANAGER_APP_EVENT_TYPE_ENABLE = 0x01,           /**< Application enable event*/
+	APP_MANAGER_APP_EVENT_TYPE_DISABLE = 0x02,         /**< Application disable event */
+} app_manager_app_status_type_e;
+
+
+//TODO(jungh.yeon) : add description about this
+typedef enum {
+	APP_MANAGER_EVENT_ENABLE_APP = 0,
+	APP_MANAGER_EVENT_DISABLE_APP,
+}app_event_type_e;
+
+//TODO(jungh.yeon) : add description about this
+typedef enum {
+	APP_MANAGER_EVENT_STATE_STARTED = 0,
+	APP_MANAGER_EVENT_STATE_PROCESSING,
+	APP_MANAGER_EVENT_STATE_COMPLETED,
+	APP_MANAGER_EVENT_STATE_FAIL,
+} app_event_state_e;
+
+/**
  * @brief  Called when an application is launched or terminated.
  * @since_tizen 2.4
  * @param[in]   app_context  The application context of the application launched or terminated
@@ -88,6 +113,47 @@ typedef bool (*app_manager_app_context_cb) (app_context_h app_context, void *use
  * @see app_manager_foreach_app_info()
  */
 typedef bool (*app_manager_app_info_cb) (app_info_h app_info, void *user_data);
+
+//TODO(jungh.yeon) : add description about this
+typedef void (*app_manager_app_event_cb) (app_event_type_e event_type, app_event_state_e event_state, void *user_data);
+
+typedef struct _app_manager_event_s *app_manager_event_h;
+
+/**
+ * @brief  Unregisters a application event callback function
+ * @since_tizen 3.0
+ * @privlevel public
+ * @privilege %http://tizen.org/privilege/packagemanager.info
+ * @param[in]   manager   App manager handle given when registering event callback function
+ * @return      @c 0 on success,
+ *              otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_REQUEST_FAILED  Internal error
+ * @see app_manager_set_app_event_cb()
+ */
+int app_manager_unset_app_event_cb(app_manager_event_h manager);
+
+/**
+ * @brief  Registers a callback function to be invoked when the application is enabled or disabled.
+ * @since_tizen 3.0
+ * @privlevel public
+ * @privilege %http://tizen.org/privilege/packagemanager.info
+ * @param[out]   manager   App manager handle  that is newly created on success
+ * @param[in]   callback   The callback function to register
+ * @param[in]   event_state   Which event state want to listen
+ * @param[in]   user_data  The user data to be passed to the callback function
+ * @return      @c 0 on success,
+ *              otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
+ * @retval  #APP_MANAGER_ERROR_REQUEST_FAILED  Internal error
+ * @see app_manager_unset_app_event_cb()
+ */
+int app_manager_set_app_event_cb(app_manager_event_h *manager, app_manager_app_event_cb callback, int event_state, void *user_data);
+
 
 /**
  * @brief  Registers a callback function to be invoked when the applications get launched or terminated.
