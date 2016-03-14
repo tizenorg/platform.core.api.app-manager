@@ -20,10 +20,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <glib.h>
 
 #include <aul.h>
 #include <dlog.h>
 #include <cynara-client.h>
+
+#include "package-manager.h"
 
 #include "app_manager.h"
 #include "app_manager_internal.h"
@@ -35,6 +38,202 @@
 #define LOG_TAG "CAPI_APPFW_APP_MANAGER"
 
 #define SMACK_LABEL_LEN 255
+//app_manager_event_s
+typedef struct _app_event_info {
+	int req_id;
+	app_event_type_e event_type;
+	app_event_state_e event_state;
+	struct _app_event_info *next;
+} app_event_info;
+
+struct _app_manager_event_s {
+	int req_id;
+	pkgmgr_client *pc;
+	app_manager_app_event_cb event_cb;
+	void *user_data;
+	app_event_info *head;
+};
+
+static GHashTable *__app_cb_table = NULL;
+
+static void __free_app_manager_event(gpointer data)
+{
+	struct _app_manager_event_s *app_event = (struct _app_manager_event_s *)data;
+	if (app_event == NULL) {
+		LOGE("failed to get app_event");
+		return;
+	}
+
+	//free PC
+	pkgmgr_client_free(app_event->pc);
+
+	//free app_event_info
+
+	//free app_event
+	free(app_event);
+	app_event = NULL;
+}
+
+static void __initialize_app_cb_table(void)
+{
+	__app_cb_table = g_hash_table_new_full(g_int_hash, g_int_equal, free, __free_app_manager_event);
+}
+
+static int __get_request_id(void)
+{
+	static int internal_req_id = 1;
+
+	return internal_req_id++;
+}
+
+static int __add_app_cb_table(struct _app_manager_event_s *app_event)
+{
+	if (__app_cb_table == NULL)
+		__initialize_app_cb_table();
+
+	int *key = malloc(sizeof(int));
+	*key = (int)app_event->req_id;
+
+	if (!g_hash_table_insert(__app_cb_table, key, app_event)) {
+		//key is already exists
+		LOGE("required key[%d] already exists", app_event->req_id);
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+static int __remove_app_cb_table(int key)
+{
+	int *tmp_key = malloc(sizeof(int));
+	*tmp_key = key;
+	//TODO(jungh.yeon) : tmp
+	if (!g_hash_table_remove(__app_cb_table, tmp_key))
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+static int __add_app_event_info(app_event_info **head, int req_id,
+				app_event_type_e event_type,
+				app_event_state_e event_state)
+{
+	app_event_info *event_info;
+	app_event_info *current;
+	app_event_info *prev;
+
+	event_info = (app_event_info *)calloc(1, sizeof(app_event_info));
+	if (event_info == NULL) {
+		LOGE("calloc failed");
+		return -1;
+	}
+
+	event_info->req_id = req_id;
+	event_info->event_type = event_type;
+	event_info->event_state = event_state;
+	event_info->next = NULL;
+
+	if (*head == NULL)
+		*head = event_info;
+	else {
+		current = prev = *head;
+		while(current) {
+			prev = current;
+			current = current->next;
+		}
+
+		prev->next = event_info;
+	}
+
+	return 0;
+}
+
+static int __find_app_event_info(app_event_info **head, int req_id,
+				app_event_type_e *event_type,
+				app_event_state_e *event_state)
+{
+	app_event_info *tmp;
+
+	tmp = *head;
+
+	if (tmp == NULL) {
+		LOGE("head is null");
+		return -1;
+	}
+
+	LOGD("req_id[%d], event_type[%d]", tmp->req_id, event_type);
+
+	while (tmp) {
+		if (tmp->req_id == req_id) {
+			*event_type = tmp->event_type;
+			return 0;
+		}
+		tmp = tmp->next;
+	}
+	return -1;
+}
+
+static int __app_manager_get_event_type(const char *key, app_event_type_e *event_type)
+{
+	if (key == NULL)
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+
+	if (strcasecmp(key, "disable_app") == 0 ||
+			strcasecmp(key, "disable_global_app_for_uid") == 0)
+		*event_type = APP_MANAGER_EVENT_DISABLE_APP;
+	else if (strcasecmp(key, "enable_app") == 0 ||
+			strcasecmp(key, "enable_global_app_for_uid") == 0)
+		*event_type = APP_MANAGER_EVENT_ENABLE_APP;
+	//TODO(jungh.yeon) : should I add more case about this such as progress?
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+static int _app_event_handler(uid_t target_uid, int req_id, const char *pkg_type,
+				const char *pkgid, const char *appid, const char *key,
+				const char *val, const void *pmsg, void *data)
+{
+	struct _app_manager_event_s *app_event = (struct _app_manager_event_s *)data;
+	app_event_type_e event_type = -1;
+	app_event_state_e event_state = -1;
+	int ret = -1;
+	//get and set event_type based on key-val pair
+
+	if (strcasecmp(key, "start") == 0) {
+		ret = __app_manager_get_event_type(val, &event_type);
+		if (ret != APP_MANAGER_ERROR_NONE)
+			return APP_MANAGER_ERROR_INVALID_PARAMETER;
+
+		__add_app_event_info(&(app_event->head), req_id, event_type,
+				APP_MANAGER_EVENT_STATE_STARTED);
+
+		//run callback if exists
+		if (app_event->event_cb)
+			app_event->event_cb(event_type, APP_MANAGER_EVENT_STATE_STARTED,
+					app_event->user_data);
+	} else if (strcasecmp(key, "end") == 0) {
+		if (__find_app_event_info(&(app_event->head), req_id, &event_type,
+				&event_state) == 0) {
+			//previous event has found and stored at event_type
+			if (strcasecmp(val, "ok") == 0) {
+				//end-ok
+				if (app_event->event_cb)
+					app_event->event_cb(event_type, APP_MANAGER_EVENT_STATE_COMPLETED,
+							app_event->user_data);
+			} else if (strcasecmp(val, "fail") == 0) {
+				//end-fail
+				if (app_event->event_cb)
+					app_event->event_cb(event_type, APP_MANAGER_EVENT_STATE_FAIL,
+							app_event->user_data);
+			} else
+				return APP_MANAGER_ERROR_INVALID_PARAMETER;
+		}
+	}
+	//TODO(jungh.yeon) : should I add "error"?
+	//TODO(jungh.yeon) : should I add "progress_percent"?
+	//TODO(jungh.yeon) : should I add install progress percent at parameter?
+	return APP_MANAGER_ERROR_NONE;
+}
 
 static const char* app_manager_error_to_string(app_manager_error_e error)
 {
@@ -131,6 +330,66 @@ out:
 		cynara_finish(p_cynara);
 
 	return ret;
+}
+
+API int app_manager_set_app_event_cb(app_manager_event_h *manager, app_manager_app_event_cb callback, int event_state, void *user_data)
+{
+	int ret = APP_MANAGER_ERROR_NONE;
+	pkgmgr_client *pc = NULL;
+	int status_type = -1;
+	struct _app_manager_event_s *app_event_s = NULL;
+
+	app_event_s = calloc(1, sizeof(struct _app_manager_event_s));
+	if (app_event_s == NULL)
+		return APP_MANAGER_ERROR_OUT_OF_MEMORY;
+
+	pc = pkgmgr_client_new(PC_LISTENING);
+	if (pc == NULL)
+		return APP_MANAGER_ERROR_OUT_OF_MEMORY;
+
+	//convert event_state to pkgmgr event status
+//API int pkgmgr_client_set_status_type(pkgmgr_client *pc, int status_type)
+	ret = pkgmgr_client_set_status_type(pc, status_type);
+	if (ret != PKGMGR_R_OK) {
+		//convert ret to app_manager error codes
+
+		goto catch;
+	}
+
+	app_event_s->req_id = __get_request_id();
+	app_event_s->pc = pc;
+	app_event_s->user_data = user_data;
+	ret = pkgmgr_client_listen_app_status(pc, _app_event_handler, app_event_s);
+	*manager = app_event_s;
+	//TODO(jungh.yeon) : how to store pkgmgr_client?
+
+	ret = __add_app_cb_table(app_event_s);
+	if (ret != APP_MANAGER_ERROR_NONE) {
+		// TODO(jungh.yeon) : error handling?
+	}
+	//init __cb_table if not initialized
+//	if (__app_cb_table == NULL)
+//		__initialize_app_cb_table();
+
+
+	return APP_MANAGER_ERROR_NONE;
+
+catch:
+
+
+	pkgmgr_client_free(pc);
+
+	return ret;
+}
+
+API int app_manager_unset_app_event_cb(app_manager_event_h manager)
+{
+	if (manager == NULL || manager->pc == NULL)
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+
+//	ret = __remove_app_cb_table(manager->req_id);
+//	return APP_MANAGER_ERROR_NONE;
+	return __remove_app_cb_table(manager->req_id);
 }
 
 API int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data)
