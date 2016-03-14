@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(capi-appfw-app-manager C)
 SET(SOURCES src/app_context.c
 	src/app_info.c
+	src/app_manager_event.c
 	src/app_manager.c)
 
 INCLUDE(FindPkgConfig)
@@ -36,7 +37,11 @@ SET(PC_PREFIX ${CMAKE_INSTALL_PREFIX})
 CONFIGURE_FILE(capi-appfw-app-manager.pc.in ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc @ONLY)
 
 INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_INSTALL_DIR})
-INSTALL(DIRECTORY ${INC_DIR}/ DESTINATION include/appfw)
+INSTALL(FILES ${INC_DIR}/app_context.h DESTINATION include/appfw)
+INSTALL(FILES ${INC_DIR}/app_manager_extension.h DESTINATION include/appfw)
+INSTALL(FILES ${INC_DIR}/app_manager.h DESTINATION include/appfw)
+INSTALL(FILES ${INC_DIR}/app_info.h DESTINATION include/appfw)
+
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 
 ADD_SUBDIRECTORY(tool)

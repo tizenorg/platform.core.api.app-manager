@@ -54,8 +54,10 @@ rm -rf %{buildroot}
 %license LICENSE
 
 %files devel
-%{_includedir}/appfw/*.h
+%{_includedir}/appfw/app_context.h
+%{_includedir}/appfw/app_manager_extension.h
+%{_includedir}/appfw/app_manager.h
+%{_includedir}/appfw/app_info.h
 %{_libdir}/libcapi-appfw-app-manager.so
 %{_libdir}/pkgconfig/*.pc
-
 

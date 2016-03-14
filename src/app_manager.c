@@ -28,6 +28,7 @@
 
 #include "app_manager.h"
 #include "app_manager_internal.h"
+#include "app_manager_event.h"
 
 #ifdef LOG_TAG
 #undef LOG_TAG
@@ -476,3 +477,117 @@ API int app_manager_set_splash_screen_display(const char *app_id, bool display)
 	return r;
 }
 
+API int app_manager_event_create(app_manager_event_h *handle)
+{
+	pkgmgr_client *pc = NULL;
+	app_manager_event *app_mgr_evt = NULL;
+
+	if (handle == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER,
+				__FUNCTION__, NULL);
+
+	app_mgr_evt = (app_manager_event *)calloc(1, sizeof(app_manager_event));
+	if (app_mgr_evt == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY,
+				__FUNCTION__, NULL);
+
+	pc = pkgmgr_client_new(PC_LISTENING);
+	if (pc == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY,
+				__FUNCTION__, NULL);
+
+	app_mgr_evt->pc = pc;
+	*handle = app_mgr_evt;
+	return APP_MANAGER_ERROR_NONE;
+}
+
+API int app_manager_event_set_status(app_manager_event_h handle, int status_type)
+{
+	int ret = APP_MANAGER_ERROR_NONE;
+	int pkgmgr_status_type = -1;
+
+	if (handle == NULL || status_type < 0)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER,
+				__FUNCTION__, NULL);
+
+	pkgmgr_status_type = convert_status_type(status_type);
+	if (pkgmgr_status_type < 0)
+		return app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED,
+				__FUNCTION__, NULL);
+
+	ret = pkgmgr_client_set_status_type(handle->pc, pkgmgr_status_type);
+	if (ret != PKGMGR_R_OK) {
+		LOGE("[%s] APP_MANAGER_ERROR_REQUEST_FAILED(0x%08x) : " \
+				"Failed to set event status", __FUNCTION__,
+				APP_MANAGER_ERROR_REQUEST_FAILED);
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+API int app_manager_set_event_cb(app_manager_event_h handle,
+		app_manager_event_cb callback,
+		void *user_data)
+{
+	int ret = APP_MANAGER_ERROR_NONE;
+
+	if (handle == NULL || callback == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER,
+				__FUNCTION__, NULL);
+
+	handle->event_cb = callback;
+	handle->user_data = user_data;
+
+	ret = pkgmgr_client_listen_app_status(handle->pc,
+			app_event_handler, handle);
+	if (ret < PKGMGR_R_OK) {
+		LOGE("[%s] APP_MANAGER_ERROR_REQUEST_FAILED(0x%08x) : " \
+				"Failed to set event callback", __FUNCTION__,
+				APP_MANAGER_ERROR_REQUEST_FAILED);
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
+
+	handle->req_id = ret;
+	return APP_MANAGER_ERROR_NONE;
+}
+
+API int app_manager_unset_event_cb(app_manager_event_h handle)
+{
+	int ret = APP_MANAGER_ERROR_NONE;
+
+	if (handle == NULL || handle->pc == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER,
+				__FUNCTION__, NULL);
+
+	ret = pkgmgr_client_remove_listen_status(handle->pc);
+	if (ret != 0) {
+		LOGE("[%s] APP_MANAGER_ERROR_REQUEST_FAILED(0x%08x) : " \
+				"Failed to unset event callback", __FUNCTION__,
+				APP_MANAGER_ERROR_REQUEST_FAILED);
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+API int app_manager_event_destroy(app_manager_event_h handle)
+{
+	int ret = APP_MANAGER_ERROR_NONE;
+
+	if (handle == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER,
+				__FUNCTION__, NULL);
+
+	ret = pkgmgr_client_free(handle->pc);
+	if (ret != 0) {
+		LOGE("[%s] APP_MANAGER_ERROR_REQUEST_FAILED(0x%08x) : " \
+				"Failed to destroy handle", __FUNCTION__,
+				APP_MANAGER_ERROR_REQUEST_FAILED);
+		return APP_MANAGER_ERROR_REQUEST_FAILED;
+	}
+	remove_app_manager_event_info_list(handle->head);
+
+	free(handle);
+	return APP_MANAGER_ERROR_NONE;
+}
