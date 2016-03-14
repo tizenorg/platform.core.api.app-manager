@@ -35,6 +35,64 @@
 #define LOG_TAG "CAPI_APPFW_APP_MANAGER"
 
 #define SMACK_LABEL_LEN 255
+//app_manager_event_s
+typedef struct _app_event_info {
+	app_event_type_e event_type;
+	app_event_state_e event_state;
+	struct _app_event_info *next;
+} app_event_info;
+
+struct app_manager_event_s {
+	pkgmgr_client *pc;
+	app_manager_app_event_cb *event_cb;
+	void *user_data;
+	app_event_info *head;
+};
+
+static int __app_manager_get_event_type(const char *key, app_event_type_e *event_type)
+{
+	if (key == NULL)
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+
+	if (strcasecmp(key, "disable_app") == 0 ||
+			strcasecmp(key, "disable_global_app_for_uid") == 0)
+		*event_type = APP_MANAGER_EVENT_DISABLE_APP;
+	else if (strcasecmp(key, "enable_app") == 0 ||
+			strcasecmp(key, "enable_global_app_for_uid") == 0)
+		*event_type = APP_MANAGER_EVENT_ENABLE_APP;
+	//TODO(jungh.yeon) : should I add more case about this such as progress?
+
+	return APP_MANAGER_ERROR_NONE;
+}
+
+static int _app_event_handler(uid_t target_uid, int req_id, const char *pkg_type,
+				const char *pkgid, const char *appid, const char *key,
+				const char *val, const void *pmsg, void *data)
+{
+	app_manager_event_s *app_event = (app_manager_event_s *)data;
+	app_event_type_e event_type;
+	app_event_state_e event_state;
+	int ret = -1;
+	//get and set event_type based on key-val pair
+
+	if (strcasecmp(key, "start") == 0) {
+		ret = __app_manager_get_event_type(val, &event_type);
+
+	} else if (strcasecmp(key, "end") == 0) {
+
+	}
+	//TODO(jungh.yeon) : should I add "error"?
+	//TODO(jungh.yeon) : should I add "progress_percent"?
+
+	//get and set event_state based on key-val pair
+
+
+//typedef void (*app_manager_app_event_cb) (app_event_type_e event_type, app_event_state_e event_state, void *user_data);
+	if (app_event->event_cb)
+		app_event->event_cb(event_type, event_state, app_event->event_cb->user_data);
+
+	return 0;
+}
 
 static const char* app_manager_error_to_string(app_manager_error_e error)
 {
@@ -131,6 +189,56 @@ out:
 		cynara_finish(p_cynara);
 
 	return ret;
+}
+
+API int app_manager_set_app_event_cb(app_manager_event_h *manager, app_manager_app_event_cb callback, int event_state, void *user_data)
+{
+	int ret = APP_MANAGER_ERROR_NONE;
+	pkgmgr_client *pc = NULL;
+	int status_type = -1;
+	struct app_manager_event_s *app_event_s = NULL;
+
+	app_event_s = calloc(1, sizeof(app_manager_event_s));
+	if (app_event_s == NULL)
+		return APP_MANAGER_ERROR_OUT_OF_MEMORY;
+
+	pc = pkgmgr_client_new(PC_LISTENING);
+	if (pc == NULL)
+		return APP_MANAGER_ERROR_OUT_OF_MEMORY;
+
+	//convert event_state to pkgmgr event status
+//API int pkgmgr_client_set_status_type(pkgmgr_client *pc, int status_type)
+	ret = pkgmgr_client_set_status_type(pc, status_type);
+	if (ret != PKGMGR_R_OK) {
+		//convert ret to app_manager error codes
+
+		goto catch;
+	}
+
+	app_event_s->pc = pc;
+	app_event_s->user_data = user_data;
+	ret = pkgmgr_client_listen_app_status(pc, _app_event_handler, app_event_s);
+	*manager = app_event_s;
+	//TODO(jungh.yeon) : how to store pkgmgr_client?
+	return APP_MANAGER_ERROR_NONE;
+
+catch:
+
+
+	pkgmgr_client_free(pc));
+
+	return ret;
+}
+
+API int app_manager_unset_app_event_cb(app_manager_event_h *manager)
+{
+	if (manager == NULL || manager->pc == NULL)
+		return APP_MANAGER_ERROR_INVALID_PARAMETER;
+
+	pkgmgr_client_free(manager->pc);
+	free(manager);
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 API int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data)
