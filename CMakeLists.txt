@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(capi-appfw-app-manager C)
 SET(SOURCES src/app_context.c
 	src/app_info.c
+	src/app_event.c
 	src/app_manager.c)
 
 INCLUDE(FindPkgConfig)
