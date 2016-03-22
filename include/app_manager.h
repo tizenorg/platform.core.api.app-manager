@@ -346,7 +346,7 @@ int app_manager_get_shared_resource_path(const char *app_id, char **path);
 int app_manager_get_shared_trusted_path(const char *app_id, char **path);
 
 /**
- * @deprecated Deprecated since 2.4.
+ * @deprecated Deprecated since @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif.
  * @brief  Gets the absolute path to the shared data directory of the application specified
  *         with an application ID.
  * @details     An application can only read the files of other application's shared data directory.
