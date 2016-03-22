@@ -529,18 +529,8 @@ static int app_context_terminated_event_cb(pid_t pid, void *data)
 
 int app_context_set_event_cb(app_manager_app_context_event_cb callback, void *user_data)
 {
-	int ret;
-
 	if (callback == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
-
-	ret = app_manager_check_privilege(PRIVILEGE_PKGMGR_INFO);
-	if (ret != APP_MANAGER_ERROR_NONE) {
-		if (ret == APP_MANAGER_ERROR_PERMISSION_DENIED)
-			return app_manager_error(APP_MANAGER_ERROR_PERMISSION_DENIED, __FUNCTION__, NULL);
-		else
-			return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
-	}
 
 	app_context_lock_event_cb_context();
 
