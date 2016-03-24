@@ -44,7 +44,7 @@ typedef struct app_context_s *app_context_h;
 
 /**
  * @brief  Enumeration for Application Context Event.
- * @since_tizen 2.4
+ * @since_tizen @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif
  */
 typedef enum
 {

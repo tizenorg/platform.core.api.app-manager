@@ -91,7 +91,7 @@ typedef bool (*app_manager_app_info_cb) (app_info_h app_info, void *user_data);
 
 /**
  * @brief  Registers a callback function to be invoked when the applications get launched or terminated.
- * @since_tizen 2.4
+ * @since_tizen @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif
  * @privlevel public
  * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[in]   callback   The callback function to register
@@ -110,7 +110,7 @@ int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callba
 
 /**
  * @brief   Unregisters the callback function.
- * @since_tizen 2.4
+ * @since_tizen @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif
  * @see app_manager_set_app_event_cb()
  * @see app_manager_app_context_event_cb()
  */
@@ -223,7 +223,7 @@ int app_manager_resume_app(app_context_h app_context);
 /**
  * @brief  Terminates the back ground application.\n
  *         UI applications that are in paused state or some service applications could be required to terminate by this API.
- * @since_tizen 2.4
+ * @since_tizen @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif
  * @privlevel public
  * @privilege %http://tizen.org/privilege/appmanager.kill.bgapp
  * @remarks This function returns after it just sends a request for terminating a background application.\n
