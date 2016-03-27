@@ -1,19 +1,19 @@
 /*
-Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
-PROPRIETARY/CONFIDENTIAL
-This software is the confidential and proprietary information of
-SAMSUNG ELECTRONICS ("Confidential Information"). You agree and acknowledge that
-this software is owned by Samsung and you
-shall not disclose such Confidential Information and shall
-use it only in accordance with the terms of the license agreement
-you entered into with SAMSUNG ELECTRONICS.  SAMSUNG make no
-representations or warranties about the suitability
-of the software, either express or implied, including but not
-limited to the implied warranties of merchantability, fitness for
-a particular purpose, or non-infringement.
-SAMSUNG shall not be liable for any damages suffered by licensee arising out of or
-related to this software.
-*/
+ * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * PROPRIETARY/CONFIDENTIAL
+ * This software is the confidential and proprietary information of
+ * SAMSUNG ELECTRONICS ("Confidential Information"). You agree and acknowledge that
+ * this software is owned by Samsung and you
+ * shall not disclose such Confidential Information and shall
+ * use it only in accordance with the terms of the license agreement
+ * you entered into with SAMSUNG ELECTRONICS.  SAMSUNG make no
+ * representations or warranties about the suitability
+ * of the software, either express or implied, including but not
+ * limited to the implied warranties of merchantability, fitness for
+ * a particular purpose, or non-infringement.
+ * SAMSUNG shall not be liable for any damages suffered by licensee arising out of or
+ * related to this software.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,8 +25,6 @@ related to this software.
 
 #include <app_manager.h>
 
-
-
 static void _print_help(const char *cmd)
 {
 	fprintf(stderr, "Usage:\n");
@@ -37,8 +35,6 @@ static void _print_help(const char *cmd)
 	fprintf(stderr, "Ex) %s com.samsung.memo\n", cmd);
 	fprintf(stderr, "\n");
 }
-
-
 
 static int _get_appinfo(const char *app_id)
 {
@@ -81,11 +77,11 @@ static int _get_appinfo(const char *app_id)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	int ret = APP_MANAGER_ERROR_NONE;
 
-	if (2 == argc) {
+	if (argc == 2) {
 		ret = _get_appinfo(argv[1]);
 	} else {
 		_print_help(argv[0]);
@@ -97,5 +93,4 @@ int main(int argc, char** argv)
 
 	return EXIT_SUCCESS;
 }
-
 

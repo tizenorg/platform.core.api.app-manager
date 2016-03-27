@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011 - 2016 Samsung Electronics Co., Ltd All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -357,3 +357,4 @@ int app_manager_get_external_shared_data_path(const char *app_id, char **path);
 #endif
 
 #endif /* __TIZEN_APPFW_APP_MANAGER_H */
+

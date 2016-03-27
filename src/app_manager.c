@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011 - 2016 Samsung Electronics Co., Ltd All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 
 #define SMACK_LABEL_LEN 255
 
-static const char* app_manager_error_to_string(app_manager_error_e error)
+static const char *app_manager_error_to_string(app_manager_error_e error)
 {
 	switch (error) {
 	case APP_MANAGER_ERROR_NONE:
@@ -62,7 +62,7 @@ static const char* app_manager_error_to_string(app_manager_error_e error)
 	}
 }
 
-int app_manager_error(app_manager_error_e error, const char* function, const char *description)
+int app_manager_error(app_manager_error_e error, const char *function, const char *description)
 {
 	if (description)
 		LOGE("[%s] %s(0x%08x) : %s", function, app_manager_error_to_string(error), error, description);
@@ -429,3 +429,4 @@ API int app_manager_get_external_shared_data_path(const char *app_id, char **pat
 
 	return r;
 }
+

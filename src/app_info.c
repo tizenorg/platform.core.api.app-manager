@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011 - 2016 Samsung Electronics Co., Ltd All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -635,7 +635,7 @@ API int app_info_filter_count_appinfo(app_info_filter_h handle, int *count)
 	return APP_MANAGER_ERROR_NONE;
 }
 
-API int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb callback, void * user_data)
+API int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb callback, void *user_data)
 {
 	int retval = 0;
 
@@ -730,3 +730,4 @@ API int app_info_metadata_filter_foreach(app_info_metadata_filter_h handle, app_
 
 	return APP_MANAGER_ERROR_NONE;
 }
+

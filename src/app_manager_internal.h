@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011 - 2016 Samsung Electronics Co., Ltd All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ extern "C" {
 
 #define PRIVILEGE_PKGMGR_INFO "http://tizen.org/privilege/packagemanager.info"
 
-int app_manager_error(app_manager_error_e error, const char* function, const char *description);
+int app_manager_error(app_manager_error_e error, const char *function, const char *description);
 
 int app_context_foreach_app_context(app_manager_app_context_cb callback, void *user_data);
 
@@ -64,3 +64,4 @@ int app_manager_check_privilege(char *privilege);
 #endif
 
 #endif /* __TIZEN_APPFW_APP_MANAGER_INTERNAL_H */
+

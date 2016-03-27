@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011 - 2016 Samsung Electronics Co., Ltd All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -110,11 +110,10 @@ typedef bool (*app_info_metadata_cb) (const char *metadata_key, const char *meta
  * @brief Enumeration for Application Information Event.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
-typedef enum
-{
-    APP_INFO_EVENT_INSTALLED, /**< The application is newly installed */
-    APP_INFO_EVENT_UNINSTALLED, /**< The application is uninstalled */
-    APP_INFO_EVENT_UPDATED, /**< The application is updated */
+typedef enum {
+	APP_INFO_EVENT_INSTALLED, /**< The application is newly installed */
+	APP_INFO_EVENT_UNINSTALLED, /**< The application is uninstalled */
+	APP_INFO_EVENT_UPDATED, /**< The application is updated */
 } app_info_event_e;
 
 /**
@@ -418,7 +417,7 @@ int app_info_filter_count_appinfo(app_info_filter_h handle, int *count);
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_IO_ERROR           I/O error
  */
-int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb callback, void * user_data);
+int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb callback, void *user_data);
 
 /**
  * @brief  Creates the application's metadata information filter handle from DB.
@@ -488,3 +487,4 @@ int app_info_metadata_filter_foreach(app_info_metadata_filter_h handle, app_info
 #endif
 
 #endif /* __TIZEN_APPFW_APP_INFO_H */
+

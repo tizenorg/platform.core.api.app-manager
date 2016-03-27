@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011 - 2016 Samsung Electronics Co., Ltd All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ static app_state_e app_context_get_app_status(int status)
 
 static int app_context_foreach_app_context_cb(const aul_app_info *aul_app_context, void *cb_data)
 {
-	foreach_context_s* foreach_context = cb_data;
+	foreach_context_s *foreach_context = cb_data;
 	app_context_h app_context;
 	app_state_e app_state;
 	bool is_sub_app = false;
@@ -138,7 +138,7 @@ int app_context_foreach_app_context(app_manager_app_context_cb callback, void *u
 
 static int app_context_foreach_running_app_context_cb(const aul_app_info *aul_app_context, void *cb_data)
 {
-	foreach_context_s* foreach_context = cb_data;
+	foreach_context_s *foreach_context = cb_data;
 	app_context_h app_context;
 	app_state_e app_state;
 	bool is_sub_app = false;
@@ -445,7 +445,7 @@ static bool app_context_load_all_app_context_cb_locked(app_context_h app_context
 	return true;
 }
 
-static void app_context_pid_table_entry_destroyed_cb(void * data)
+static void app_context_pid_table_entry_destroyed_cb(void *data)
 {
 	app_context_h app_context = data;
 
@@ -580,3 +580,4 @@ void app_context_unset_event_cb(void)
 
 	app_context_unlock_event_cb_context();
 }
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Samsung Electronics Co., Ltd All Rights Reserved
+ * Copyright (c) 2011 - 2016 Samsung Electronics Co., Ltd All Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the License);
  * you may not use this file except in compliance with the License.
@@ -46,10 +46,9 @@ typedef struct app_context_s *app_context_h;
  * @brief  Enumeration for Application Context Event.
  * @since_tizen @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif
  */
-typedef enum
-{
-    APP_CONTEXT_EVENT_LAUNCHED, /**< The application is launched */
-    APP_CONTEXT_EVENT_TERMINATED, /**< The application is terminated */
+typedef enum {
+	APP_CONTEXT_EVENT_LAUNCHED, /**< The application is launched */
+	APP_CONTEXT_EVENT_TERMINATED, /**< The application is terminated */
 } app_context_event_e;
 
 
@@ -58,11 +57,11 @@ typedef enum
  * @since_tizen 3.0
  */
 typedef enum {
-    APP_STATE_UNDEFINED, /**< The undefined state */
-    APP_STATE_FOREGROUND, /**< The UI application is running in the foreground. */
-    APP_STATE_BACKGROUND, /**< The UI application is running in the background. */
-    APP_STATE_SERVICE, /**< The Service application is running. */
-    APP_STATE_TERMINATED, /**< The application is terminated. */
+	APP_STATE_UNDEFINED, /**< The undefined state */
+	APP_STATE_FOREGROUND, /**< The UI application is running in the foreground. */
+	APP_STATE_BACKGROUND, /**< The UI application is running in the background. */
+	APP_STATE_SERVICE, /**< The Service application is running. */
+	APP_STATE_TERMINATED, /**< The application is terminated. */
 } app_state_e;
 
 
@@ -222,3 +221,4 @@ int app_context_clone(app_context_h *clone, app_context_h app_context);
 #endif
 
 #endif /* __TIZEN_APPFW_APP_CONTEXT_H */
+
