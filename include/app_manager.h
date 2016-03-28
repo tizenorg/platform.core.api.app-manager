@@ -55,7 +55,7 @@ typedef enum {
 
 /**
  * @brief  Called when an application is launched or terminated.
- * @since_tizen 2.4
+ * @since_tizen @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif
  * @param[in]   app_context  The application context of the application launched or terminated
  * @param[in]   event        The application context event
  * @param[in]   user_data    The user data passed from the foreach function
