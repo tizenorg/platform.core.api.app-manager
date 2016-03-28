@@ -120,8 +120,6 @@ typedef enum
 /**
  * @brief  Creates the application information handle.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[in]   app_id    The application ID
  * @param[out]  app_info  The application information handle
  * @return      @c 0 on success,
@@ -130,7 +128,6 @@ typedef enum
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        The app is not installed
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  * @see app_manager_foreach_app_info()
  * @see app_manager_get_app_info()
  */
@@ -194,8 +191,6 @@ int app_info_get_label(app_info_h app_info, char **label);
 /**
  * @brief  Gets the localed name of the application.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @remarks     You must release localed name using free().
  * @param[in]   app_id  The application ID
  * @param[in]   locale  The locale information
@@ -205,7 +200,6 @@ int app_info_get_label(app_info_h app_info, char **label);
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  */
 int app_info_get_localed_label(const char *app_id, const char *locale, char **label);
 
@@ -349,8 +343,6 @@ int app_info_clone(app_info_h *clone, app_info_h app_info);
  * @brief  Creates the application information filter handle from DB.
  *         All filter properties will be ANDed.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[out]  handle  The pointer to the application info filter handle
  * @return      @c 0 on success,
  *              otherwise a negative error value
@@ -358,7 +350,6 @@ int app_info_clone(app_info_h *clone, app_info_h app_info);
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  * @retval  #APP_MANAGER_ERROR_IO_ERROR           I/O error
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED Permission denied
  */
 int app_info_filter_create(app_info_filter_h *handle);
 
@@ -432,8 +423,6 @@ int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb
 /**
  * @brief  Creates the application's metadata information filter handle from DB.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[out]  handle  The pointer to the application metadata info filter handle
  * @return      @c 0 on success,
  *              otherwise a negative error value
@@ -441,7 +430,6 @@ int app_info_filter_foreach_appinfo(app_info_filter_h handle, app_info_filter_cb
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  * @retval  #APP_MANAGER_ERROR_IO_ERROR           I/O error
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED Permission denied
  */
 int app_info_metadata_filter_create(app_info_metadata_filter_h *handle);
 

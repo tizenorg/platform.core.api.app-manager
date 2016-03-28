@@ -92,8 +92,6 @@ typedef bool (*app_manager_app_info_cb) (app_info_h app_info, void *user_data);
 /**
  * @brief  Registers a callback function to be invoked when the applications get launched or terminated.
  * @since_tizen @if MOBILE 2.4 @elseif WEARABLE 3.0 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[in]   callback   The callback function to register
  * @param[in]   user_data  The user data to be passed to the callback function
  * @return      @c 0 on success,
@@ -101,7 +99,6 @@ typedef bool (*app_manager_app_info_cb) (app_info_h app_info, void *user_data);
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  * @post It will invoke app_manager_app_context_event_cb() when the application is launched or terminated.
  * @see app_manager_unset_app_context_event_cb()
  * @see app_manager_app_context_event_cb()
@@ -119,15 +116,12 @@ void app_manager_unset_app_context_event_cb(void);
 /**
  * @brief  Retrieves all application contexts of running applications.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[in]   callback   The callback function to invoke
  * @param[in]   user_data  The user data to be passed to the callback function
  * @return      @c 0 on success,
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  * @post   This function invokes app_manager_app_context_cb() for each application context.
  * @see app_manager_app_context_cb()
  */
@@ -157,8 +151,6 @@ int app_manager_foreach_running_app_context(app_manager_app_context_cb callback,
 /**
  * @brief  Gets the application context for the given ID of the application.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @remarks  This function returns #APP_MANAGER_ERROR_NO_SUCH_APP if the application with the given application ID is not running. \n
  *           You must release @a app_context using app_context_destroy().
  * @param[in]   app_id       The ID of the application
@@ -169,15 +161,12 @@ int app_manager_foreach_running_app_context(app_manager_app_context_cb callback,
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  */
 int app_manager_get_app_context(const char *app_id, app_context_h *app_context);
 
 /**
  * @brief  Gets the ID of the application for the given process ID.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @remarks  This function returns #APP_MANAGER_ERROR_NO_SUCH_APP if the application with the given process ID is not valid. \n
  *           You must release @a app_id using free().
  * @param[in]   pid     The process ID of the application
@@ -187,7 +176,6 @@ int app_manager_get_app_context(const char *app_id, app_context_h *app_context);
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  */
 int app_manager_get_app_id(pid_t pid, char **app_id);
 
@@ -241,15 +229,12 @@ int app_manager_request_terminate_bg_app(app_context_h app_context);
 /**
  * @brief  Retrieves all installed applications information.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[in]   callback   The callback function to invoke
  * @param[in]   user_data  The user data to be passed to the callback function
  * @return      @c 0 on success,
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  * @post    This function invokes app_manager_app_info_cb() for each application information.
  * @see app_manager_app_info_cb()
  */
@@ -258,8 +243,6 @@ int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_da
 /**
  * @brief  Gets the application information for the given application ID.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @remarks     You must release @a app_info using app_info_destroy().
  * @param[in]   app_id    The ID of the application
  * @param[out]  app_info  The application information for the given application ID
@@ -269,7 +252,6 @@ int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *user_da
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
  * @retval  #APP_MANAGER_ERROR_NO_SUCH_APP        No such application
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  */
 int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
 
