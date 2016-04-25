@@ -24,6 +24,7 @@
 #include <aul.h>
 #include <dlog.h>
 #include <cynara-client.h>
+#include <package-manager.h>
 
 #include "app_manager.h"
 #include "app_manager_internal.h"
@@ -424,6 +425,51 @@ API int app_manager_get_external_shared_data_path(const char *app_id, char **pat
 		break;
 	default:
 		r = app_manager_error(APP_MANAGER_ERROR_REQUEST_FAILED, __FUNCTION__, NULL);
+		break;
+	}
+
+	return r;
+}
+
+API int app_manager_set_splash_screen_display(const char *app_id, bool display)
+{
+	int r;
+	pkgmgr_client *pc;
+
+	if (app_id == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER,
+				__FUNCTION__, NULL);
+
+	pc = pkgmgr_client_new(PC_REQUEST);
+	if (pc == NULL)
+		return app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY,
+				__FUNCTION__, NULL);
+
+	if (display)
+		r = pkgmgr_client_enable_splash_screen(pc, app_id);
+	else
+		r = pkgmgr_client_disable_splash_screen(pc, app_id);
+	pkgmgr_client_free(pc);
+
+	switch (r) {
+	case PKGMGR_R_OK:
+		r = APP_MANAGER_ERROR_NONE;
+		break;
+	case PKGMGR_R_EINVAL:
+		r = app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER,
+				__FUNCTION__, NULL);
+		break;
+	case PKGMGR_R_EPRIV:
+		r = app_manager_error(APP_MANAGER_ERROR_PERMISSION_DENIED,
+				__FUNCTION__, NULL);
+		break;
+	case PKGMGR_R_ENOMEM:
+		r = app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY,
+				__FUNCTION__, NULL);
+		break;
+	default:
+		r = app_manager_error(APP_MANAGER_ERROR_IO_ERROR,
+				__FUNCTION__, NULL);
 		break;
 	}
 
