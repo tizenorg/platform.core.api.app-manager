@@ -14,6 +14,7 @@ BuildRequires:  pkgconfig(pkgmgr-info)
 BuildRequires:  pkgconfig(capi-base-common)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(cynara-client)
+BuildRequires:  pkgconfig(pkgmgr)
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 

@@ -14,7 +14,8 @@ pkg_check_modules(PKGS REQUIRED
 	pkgmgr
 	pkgmgr-info
 	glib-2.0
-	cynara-client)
+	cynara-client
+	pkgmgr)
 FOREACH(FLAGS ${PKGS_CFLAGS})
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAGS}")
 ENDFOREACH(FLAGS)
