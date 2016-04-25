@@ -17,6 +17,8 @@
 #ifndef __TIZEN_APPFW_APP_MANAGER_EXTENSION_H
 #define __TIZEN_APPFW_APP_MANAGER_EXTENSION_H
 
+#include <stdbool.h>
+
 #include "app_manager.h"
 
 #ifdef __cplusplus
@@ -46,6 +48,24 @@ extern "C" {
  * @retval #APP_MANAGER_ERROR_PERMISSION_DENIED Permission denied
  */
 int app_manager_terminate_app(app_context_h app_context);
+
+/**
+ * @brief Sets the display flag to enable/disable the splash screen.
+ * @since_tizen 3.0
+ * @privilege platform
+ * @privilege %http://tizen.org/privilege/packagemanager.admin
+ * @param[in]     app_id  The ID of the application
+ * @param[in]     display The display flag to enable/disable the splash screen
+ *
+ * @return  @c 0 on success,
+ *          otherwise a negative error value
+ * @retval  #APP_MANAGER_ERROR_NONE               Successful
+ * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
+ * @retval  #APP_MANAGER_ERROR_IO_ERROR           Internal I/O error
+ */
+int app_manager_set_splash_screen_display(const char *app_id, bool display);
 
 /**
  * @}
