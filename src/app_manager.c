@@ -269,7 +269,7 @@ API int app_manager_terminate_app(app_context_h app_context)
 	if (app_context_get_pid(app_context, &pid) != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, "failed to get the process ID");
 
-	retval = aul_terminate_pid(pid);
+	retval = aul_terminate_pid_sync(pid);
 	if (retval == AUL_R_EINVAL) {
 		LOGE("[%s] APP_MANAGER_ERROR_INVALID_PARAMETER(0x%08x) : Invalid param", __FUNCTION__, APP_MANAGER_ERROR_INVALID_PARAMETER);
 		return APP_MANAGER_ERROR_INVALID_PARAMETER;
