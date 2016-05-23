@@ -181,12 +181,8 @@ int app_context_foreach_running_app_context(app_manager_app_context_cb callback,
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
 
 	ret = aul_app_get_all_running_app_info(app_context_foreach_running_app_context_cb, &foreach_context);
-	if (ret != AUL_R_OK) {
-		if (ret == AUL_R_EILLACC)
-			return app_manager_error(APP_MANAGER_ERROR_PERMISSION_DENIED, __FUNCTION__, NULL);
-		else
+	if (ret != AUL_R_OK)
 			return app_manager_error(APP_MANAGER_ERROR_IO_ERROR, __FUNCTION__, NULL);
-	}
 
 	return APP_MANAGER_ERROR_NONE;
 }
@@ -339,14 +335,8 @@ API int app_context_get_package_id(app_context_h app_context, char **pkg_id)
 
 API int app_context_get_app_state(app_context_h app_context, app_state_e *state)
 {
-	int ret;
-
 	if (app_context == NULL || state == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
-
-	ret = app_manager_check_privilege(PRIVILEGE_PKGMGR_INFO);
-	if (ret != APP_MANAGER_ERROR_NONE)
-		return app_manager_error(ret, __FUNCTION__, NULL);
 
 	*state = app_context->app_state;
 
