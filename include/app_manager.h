@@ -190,15 +190,12 @@ int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *u
  * @details You can iterate all the running application contexts using this API.
  *          This API is similar to app_manager_foreach_app_context() except that this API iterates application contexts including sub apps in application groups.
  * @since_tizen 3.0
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @param[in]   callback   The callback function to invoke
  * @param[in]   user_data  The user data to be passed to the callback function
  * @return      @c 0 on success,
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  * @post   This function invokes app_manager_app_context_cb() for each application context.
  * @see app_manager_app_context_cb()
  */
