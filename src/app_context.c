@@ -339,8 +339,14 @@ API int app_context_get_package_id(app_context_h app_context, char **pkg_id)
 
 API int app_context_get_app_state(app_context_h app_context, app_state_e *state)
 {
+	int ret;
+
 	if (app_context == NULL || state == NULL)
 		return app_manager_error(APP_MANAGER_ERROR_INVALID_PARAMETER, __FUNCTION__, NULL);
+
+	ret = app_manager_check_privilege(PRIVILEGE_PKGMGR_INFO);
+	if (ret != APP_MANAGER_ERROR_NONE)
+		return app_manager_error(ret, __FUNCTION__, NULL);
 
 	*state = app_context->app_state;
 
