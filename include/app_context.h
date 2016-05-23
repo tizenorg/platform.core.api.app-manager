@@ -141,8 +141,6 @@ int app_context_get_package_id(app_context_h app_context, char **pkg_id);
 /**
  * @brief  Gets the application state with the given application context.
  * @since_tizen 3.0
- * @privlevel public
- * @privilege %http://tizen.org/privilege/packagemanager.info
  * @remarks Note that application's state might be changed after you get app_context.
  *          This API just returns the state of application when you get the app_context.
  * @param[in]   app_context  The application context
@@ -151,7 +149,6 @@ int app_context_get_package_id(app_context_h app_context, char **pkg_id);
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
- * @retval  #APP_MANAGER_ERROR_PERMISSION_DENIED  Permission denied
  */
 int app_context_get_app_state(app_context_h app_context, app_state_e *state);
 
