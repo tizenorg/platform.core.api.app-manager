@@ -137,12 +137,13 @@ out:
 
 API int app_manager_set_app_context_event_cb(app_manager_app_context_event_cb callback, void *user_data)
 {
-	int retval = app_context_set_event_cb(callback, user_data);
+	int retval;
 
+	retval = app_context_set_event_cb(callback, user_data);
 	if (retval != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(retval, __FUNCTION__, NULL);
-	else
-		return APP_MANAGER_ERROR_NONE;
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 API void app_manager_unset_app_context_event_cb(void)
@@ -152,32 +153,35 @@ API void app_manager_unset_app_context_event_cb(void)
 
 API int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *user_data)
 {
-	int retval = app_context_foreach_app_context(callback, user_data);
+	int retval;
 
+	retval = app_context_foreach_app_context(callback, user_data);
 	if (retval != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(retval, __FUNCTION__, NULL);
-	else
-		return APP_MANAGER_ERROR_NONE;
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 API int app_manager_foreach_running_app_context(app_manager_app_context_cb callback, void *user_data)
 {
-	int retval = app_context_foreach_running_app_context(callback, user_data);
+	int retval;
 
+	retval = app_context_foreach_running_app_context(callback, user_data);
 	if (retval != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(retval, __FUNCTION__, NULL);
-	else
-		return APP_MANAGER_ERROR_NONE;
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 API int app_manager_get_app_context(const char *app_id, app_context_h *app_context)
 {
-	int retval = app_context_get_app_context(app_id, app_context);
+	int retval;
 
+	retval = app_context_get_app_context(app_id, app_context);
 	if (retval != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(retval, __FUNCTION__, NULL);
-	else
-		return APP_MANAGER_ERROR_NONE;
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 API int app_manager_resume_app(app_context_h app_context)
@@ -219,11 +223,10 @@ API int app_manager_foreach_app_info(app_manager_app_info_cb callback, void *use
 	int retval;
 
 	retval = app_info_foreach_app_info(callback, user_data);
-
 	if (retval != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(retval, __FUNCTION__, NULL);
-	else
-		return APP_MANAGER_ERROR_NONE;
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 API int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
@@ -231,11 +234,10 @@ API int app_manager_get_app_info(const char *app_id, app_info_h *app_info)
 	int retval;
 
 	retval = app_info_create(app_id, app_info);
-
 	if (retval != APP_MANAGER_ERROR_NONE)
 		return app_manager_error(retval, __FUNCTION__, NULL);
-	else
-		return APP_MANAGER_ERROR_NONE;
+
+	return APP_MANAGER_ERROR_NONE;
 }
 
 API int app_manager_get_app_id(pid_t pid, char **app_id)
