@@ -325,8 +325,8 @@ int app_manager_get_app_info(const char *app_id, app_info_h *app_info);
  *		The @ref CAPI_APP_CONTROL_MODULE API supports giving permission to other applications by passing path via app_control. @n
  *		shared/data directory is only available for applications with api-version lower than 3.0 from Tizen 3.0 platform.
  *		The applications with api-version from 3.0 cannot access other applications' shared/data directory.
- *		For example, a Tizen 2.4 application can access another Tizen 2.4 application's shared/data directory as it did in Tizen 2.4 platform.
- *		However, a Tizen 3.0 application cannot access another application's shared/data directory even the another application is Tizen 2.4 application.
+ *		For example, a Tizen @if Mobile 2.4 @elseif WEARABLE 2.3.1 @endif application can access another Tizen @if Mobile 2.4 @elseif WEARABLE 2.3.1 @endif application's shared/data directory as it did in Tizen @if Mobile 2.4 @elseif WEARABLE 2.3.1 @endif platform.
+ *		However, a Tizen 3.0 application cannot access another application's shared/data directory even the another application is Tizen @if Mobile 2.4 @elseif WEARABLE 2.3.1 @endif application.
  *		Note that Tizen 3.0 platform only supports share/data directory among applications with api-version lower than 3.0 for minimum backward compatibility.
  *
  * @param[in]      app_id  The ID of the application
