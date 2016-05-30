@@ -107,16 +107,6 @@ typedef bool (*app_info_filter_cb) (app_info_h app_info, void *user_data);
 typedef bool (*app_info_metadata_cb) (const char *metadata_key, const char *metadata_value, void *user_data);
 
 /**
- * @brief Enumeration for Application Information Event.
- * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
- */
-typedef enum {
-	APP_INFO_EVENT_INSTALLED, /**< The application is newly installed */
-	APP_INFO_EVENT_UNINSTALLED, /**< The application is uninstalled */
-	APP_INFO_EVENT_UPDATED, /**< The application is updated */
-} app_info_event_e;
-
-/**
  * @brief  Creates the application information handle.
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  * @param[in]   app_id    The application ID
