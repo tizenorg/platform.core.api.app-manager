@@ -179,10 +179,18 @@ static int app_info_foreach_app_info_cb(pkgmgrinfo_appinfo_h handle, void *cb_da
 		return PMINFO_R_ERROR;
 	}
 
-	if (app_info_create(appid, &app_info) == APP_MANAGER_ERROR_NONE) {
-		iteration_next = foreach_context->callback(app_info, foreach_context->user_data);
-		app_info_destroy(app_info);
+	app_info = calloc(1, sizeof(struct app_info_s));
+	if (app_info == NULL) {
+		app_manager_error(APP_MANAGER_ERROR_OUT_OF_MEMORY, __FUNCTION__, NULL);
+		return PMINFO_R_ERROR;
 	}
+
+	app_info->app_id = strdup(appid);
+	app_info->pkg_app_info = handle;
+	iteration_next = foreach_context->callback(app_info, foreach_context->user_data);
+
+	free(app_info->app_id);
+	free(app_info);
 
 	if (iteration_next == true)
 		return PMINFO_R_OK;
