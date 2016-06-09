@@ -157,6 +157,7 @@ typedef bool (*app_manager_app_info_cb) (app_info_h app_info, void *user_data);
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
  * @retval  #APP_MANAGER_ERROR_OUT_OF_MEMORY      Out of memory
+ * @retval  #APP_MANAGER_ERROR_IO_ERROR           Internal I/O error
  * @post It will invoke app_manager_app_context_event_cb() when the application is launched or terminated.
  * @see app_manager_unset_app_context_event_cb()
  * @see app_manager_app_context_event_cb()
@@ -179,6 +180,7 @@ void app_manager_unset_app_context_event_cb(void);
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_IO_ERROR           Internal I/O error
  * @post   This function invokes app_manager_app_context_cb() for each application context.
  * @see app_manager_app_context_cb()
  */
@@ -196,6 +198,7 @@ int app_manager_foreach_app_context(app_manager_app_context_cb callback, void *u
  *              otherwise a negative error value
  * @retval  #APP_MANAGER_ERROR_NONE               Successful
  * @retval  #APP_MANAGER_ERROR_INVALID_PARAMETER  Invalid parameter
+ * @retval  #APP_MANAGER_ERROR_IO_ERROR           Internal I/O error
  * @post   This function invokes app_manager_app_context_cb() for each application context.
  * @see app_manager_app_context_cb()
  */
